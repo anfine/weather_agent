@@ -1,0 +1,2716 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "v0.2-single-point",
+  "attractions": [
+    {
+      "id": "cn-destination-001",
+      "name": "西安",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "西安默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 34.26538,
+          "longitude": 108.938924,
+          "elevation_m": 411.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 2,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-002",
+      "name": "南京",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "南京默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 32.055723,
+          "longitude": 118.788381,
+          "elevation_m": 17.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 3,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-003",
+      "name": "北京",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "北京默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 39.902255,
+          "longitude": 116.397379,
+          "elevation_m": 47.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 4,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-004",
+      "name": "苏州",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "苏州默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 31.295952,
+          "longitude": 120.579396,
+          "elevation_m": 5.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 5,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-005",
+      "name": "大理",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "大理默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 25.676832,
+          "longitude": 100.302408,
+          "elevation_m": 2030.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 6,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-006",
+      "name": "澳门",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "澳门默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 22.186811,
+          "longitude": 113.538419,
+          "elevation_m": 0.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 7,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-007",
+      "name": "丽江",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "丽江默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 26.857446,
+          "longitude": 100.222409,
+          "elevation_m": 2392.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 8,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-008",
+      "name": "腾冲",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "腾冲默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 25.026911,
+          "longitude": 98.493172,
+          "elevation_m": 1644.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 9,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-009",
+      "name": "喀什",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "喀什默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 39.463821,
+          "longitude": 75.990534,
+          "elevation_m": 1297.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 10,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-010",
+      "name": "伊犁",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "伊犁默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 43.912837,
+          "longitude": 81.320424,
+          "elevation_m": 644.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 11,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-011",
+      "name": "徽州",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "徽州默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.826132,
+          "longitude": 118.328374,
+          "elevation_m": 132.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 12,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-012",
+      "name": "凤凰古城",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture",
+        "ancient_town"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "凤凰古城默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 27.947765,
+          "longitude": 109.598977,
+          "elevation_m": 327.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 13,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-013",
+      "name": "日喀则",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "日喀则默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.27735,
+          "longitude": 88.881442,
+          "elevation_m": 3843.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 14,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-014",
+      "name": "绍兴",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "绍兴默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 30.056398,
+          "longitude": 120.579468,
+          "elevation_m": 6.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 15,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-015",
+      "name": "曲阜三孔",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture",
+        "architecture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "曲阜三孔默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 35.613832,
+          "longitude": 116.987943,
+          "elevation_m": 67.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 16,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-016",
+      "name": "喀纳斯",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "喀纳斯默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 48.602844,
+          "longitude": 87.000554,
+          "elevation_m": 2364.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 17,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-017",
+      "name": "阿里",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "阿里默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 32.506722,
+          "longitude": 80.1012,
+          "elevation_m": 4284.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 18,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-018",
+      "name": "塔克拉玛干沙漠",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "desert"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "塔克拉玛干沙漠默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 40.163354,
+          "longitude": 81.710761,
+          "elevation_m": 1033.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 19,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-019",
+      "name": "海螺沟",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain",
+        "glacier"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "海螺沟默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.576457,
+          "longitude": 102.001962,
+          "elevation_m": 2946.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 20,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-020",
+      "name": "三江源",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "plateau",
+        "wetland",
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "三江源默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 32.956062,
+          "longitude": 98.072857,
+          "elevation_m": 4229.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 21,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-021",
+      "name": "雅鲁藏布江大峡谷",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "canyon",
+        "river"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "雅鲁藏布江大峡谷默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.597288,
+          "longitude": 94.862644,
+          "elevation_m": 4388.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 22,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-022",
+      "name": "怒江",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "river",
+        "canyon",
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "怒江默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 25.817253,
+          "longitude": 98.853105,
+          "elevation_m": 967.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 23,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-023",
+      "name": "德天瀑布",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "waterfall"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "德天瀑布默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 22.857152,
+          "longitude": 106.729818,
+          "elevation_m": 451.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 24,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-024",
+      "name": "黔东南",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "黔东南默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 26.587337,
+          "longitude": 107.979429,
+          "elevation_m": 696.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 25,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-025",
+      "name": "神农架",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain",
+        "forest"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "神农架默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 31.746261,
+          "longitude": 110.668416,
+          "elevation_m": 940.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 26,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-026",
+      "name": "壶口瀑布",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "waterfall",
+        "river"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "壶口瀑布默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 36.124252,
+          "longitude": 110.447771,
+          "elevation_m": 429.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 27,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-027",
+      "name": "香格里拉",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "香格里拉默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 27.837306,
+          "longitude": 99.702466,
+          "elevation_m": 3279.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 28,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-028",
+      "name": "西湖",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "lake",
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "西湖默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 30.225932,
+          "longitude": 120.118825,
+          "elevation_m": 204.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 29,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-029",
+      "name": "塔什库尔干",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "塔什库尔干默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 37.773936,
+          "longitude": 75.220541,
+          "elevation_m": 3107.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 30,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-030",
+      "name": "丹巴",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "丹巴默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 30.876446,
+          "longitude": 101.892071,
+          "elevation_m": 2088.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 31,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-031",
+      "name": "林芝",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "林芝默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.646872,
+          "longitude": 94.362272,
+          "elevation_m": 2990.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 32,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-032",
+      "name": "稻城亚丁",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain",
+        "plateau"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "稻城亚丁默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 28.457553,
+          "longitude": 100.282272,
+          "elevation_m": 4785.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 33,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-033",
+      "name": "黄姚",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture",
+        "ancient_town"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "黄姚默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 24.246736,
+          "longitude": 111.208385,
+          "elevation_m": 188.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 34,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-034",
+      "name": "蜀南竹海",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "forest"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "蜀南竹海默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 28.477099,
+          "longitude": 105.000632,
+          "elevation_m": 863.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 35,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-035",
+      "name": "阳朔",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "阳朔默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 24.776812,
+          "longitude": 110.488887,
+          "elevation_m": 118.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 36,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-036",
+      "name": "甘南",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "甘南默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 34.985372,
+          "longitude": 102.911701,
+          "elevation_m": 2894.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 37,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-037",
+      "name": "婺源",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "婺源默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.246767,
+          "longitude": 117.858469,
+          "elevation_m": 70.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 38,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-038",
+      "name": "山南",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "山南默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.237037,
+          "longitude": 91.772316,
+          "elevation_m": 3562.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 39,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-039",
+      "name": "九寨沟",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain",
+        "lake"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "九寨沟默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 33.165823,
+          "longitude": 103.911394,
+          "elevation_m": 2683.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 40,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-040",
+      "name": "青海湖",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "lake",
+        "plateau"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "青海湖默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 36.574381,
+          "longitude": 100.491931,
+          "elevation_m": 3251.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 41,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-041",
+      "name": "辉腾锡乐草原",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "辉腾锡乐草原默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 41.152786,
+          "longitude": 112.616721,
+          "elevation_m": 2017.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 42,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-042",
+      "name": "长白山",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "长白山默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 42.05171,
+          "longitude": 128.077249,
+          "elevation_m": 2050.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 43,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-043",
+      "name": "泸沽湖",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "lake"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "泸沽湖默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 27.717417,
+          "longitude": 100.902395,
+          "elevation_m": 2727.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 44,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-shaanxi-huashan",
+      "name": "华山",
+      "aliases": [
+        "西岳",
+        "太华山",
+        "Huashan",
+        "Mount Hua"
+      ],
+      "status": "prototype",
+      "administrative_area": {
+        "country_code": "CN",
+        "province": "陕西省",
+        "prefecture": "渭南市",
+        "county": "华阴市"
+      },
+      "timezone": "Asia/Shanghai",
+      "environment_tags": [
+        "mountain"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "weather_points": [
+        {
+          "id": "south_peak",
+          "name": "南峰（落雁峰）",
+          "purpose": "summit_conditions",
+          "latitude": 34.477799,
+          "longitude": 110.077847,
+          "elevation_m": 2154.9
+        }
+      ],
+      "default_weather_point_id": "south_peak",
+      "data_notes": [
+        "华山是多峰且高差显著的景区，单个采样点不能代表山门、索道站和所有峰顶。",
+        "V2 暂以最高峰南峰作为默认采样点，用于获得偏保守的山顶游览条件。",
+        "experience_tags.importance 是原型期产品参数，不是研究结论。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.south_peak.elevation_m",
+          "title": "国家测绘局、建设部关于启用泰山等第一批19座著名山峰高程新数据的公告",
+          "url": "https://jst.sc.gov.cn/scjst/tonggao/2009/1/19/d80b2f6b24164ecf99c98682005eddde.shtml"
+        },
+        {
+          "field": "weather_points.south_peak.latitude,weather_points.south_peak.longitude",
+          "title": "PeakVisor: Mount Hua South Peak",
+          "url": "https://peakvisor.com/peak/mount-hua-south-peak.html"
+        },
+        {
+          "field": "administrative_area,aliases",
+          "title": "陕西省人民政府：Huashan Mountain",
+          "url": "https://en.shaanxi.gov.cn/tourism/aic/wn_2125/201705/t20170516_1595059.html"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-045",
+      "name": "黄山",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "黄山默认天气采样点",
+          "purpose": "summit",
+          "latitude": 30.166667,
+          "longitude": 118.183333,
+          "elevation_m": 1864.8,
+          "coordinate_system": "WGS84",
+          "coordinate_source": "manual_override",
+          "elevation_source": "official_peak_elevation"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。",
+        "已使用人工核验的代表峰覆盖原始坐标"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 46,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-046",
+      "name": "四姑娘山",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "mountain"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "hiking",
+          "name": "徒步",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "四姑娘山默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 31.086179,
+          "longitude": 102.831967,
+          "elevation_m": 4722.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 47,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-047",
+      "name": "三峡",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "region",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "river",
+        "canyon",
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "三峡默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 31.036198,
+          "longitude": 109.538799,
+          "elevation_m": 158.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 48,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-048",
+      "name": "亚龙湾",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "beach"
+      ],
+      "experience_tags": [
+        {
+          "id": "scenic_view",
+          "name": "观景",
+          "importance": 5
+        },
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "亚龙湾默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 18.236163,
+          "longitude": 109.619493,
+          "elevation_m": 4.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 49,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-049",
+      "name": "德格",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "德格默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 31.806761,
+          "longitude": 98.583132,
+          "elevation_m": 3369.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 50,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-050",
+      "name": "都江堰",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "都江堰默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 31.006873,
+          "longitude": 103.611378,
+          "elevation_m": 819.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 51,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-051",
+      "name": "拉萨",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "拉萨默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 29.656734,
+          "longitude": 91.172036,
+          "elevation_m": 3659.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 52,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-052",
+      "name": "西夏王陵",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture",
+        "heritage"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "西夏王陵默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 38.433508,
+          "longitude": 105.97927,
+          "elevation_m": 1176.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 53,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-053",
+      "name": "云冈石窟",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "attraction",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture",
+        "heritage"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "云冈石窟默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 40.112609,
+          "longitude": 113.126352,
+          "elevation_m": 1175.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 54,
+          "coordinate_system": "BD09"
+        }
+      ]
+    },
+    {
+      "id": "cn-destination-054",
+      "name": "敦煌",
+      "aliases": [],
+      "status": "prototype",
+      "kind": "city",
+      "timezone": "Asia/Shanghai",
+      "descriptive_tags": [
+        "culture"
+      ],
+      "experience_tags": [
+        {
+          "id": "outdoor_visit",
+          "name": "户外游览",
+          "importance": 3
+        }
+      ],
+      "coverage": "representative_point",
+      "weather_notice": "评分使用一个代表性天气采样点。",
+      "weather_points": [
+        {
+          "id": "default",
+          "name": "敦煌默认天气采样点",
+          "purpose": "centroid",
+          "latitude": 40.143189,
+          "longitude": 94.662537,
+          "elevation_m": 1138.0,
+          "coordinate_system": "WGS84_APPROX",
+          "coordinate_source": "baidu_bd09_offline_conversion",
+          "elevation_source": "open_meteo_copernicus_dem_90m"
+        }
+      ],
+      "default_weather_point_id": "default",
+      "data_notes": [
+        "评分使用一个代表性天气采样点。"
+      ],
+      "sources": [
+        {
+          "field": "weather_points.default",
+          "title": "54个景点.xlsx",
+          "row": 55,
+          "coordinate_system": "BD09"
+        }
+      ]
+    }
+  ]
+}

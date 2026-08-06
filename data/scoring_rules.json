@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "rules_version": "v0.1-experimental",
+  "audience": "ordinary_tourist",
+  "provenance": {
+    "basis": "heuristic",
+    "sources": []
+  },
+  "score_range": {
+    "min": 0,
+    "max": 100
+  },
+  "default_evaluation_window": {
+    "start": "06:00",
+    "end": "18:00"
+  },
+  "metric_profiles": {
+    "visibility_standard": {
+      "unit": "m",
+      "bands": [
+        {"min": 30000, "max": null, "score": 100},
+        {"min": 20000, "max": 30000, "score": 90},
+        {"min": 10000, "max": 20000, "score": 70},
+        {"min": 5000, "max": 10000, "score": 40},
+        {"min": null, "max": 5000, "score": 10}
+      ]
+    },
+    "cloud_cover_clear": {
+      "unit": "%",
+      "bands": [
+        {"min": 0, "max": 20, "score": 100},
+        {"min": 20, "max": 50, "score": 85},
+        {"min": 50, "max": 75, "score": 60},
+        {"min": 75, "max": 90, "score": 35},
+        {"min": 90, "max": null, "score": 15}
+      ]
+    },
+    "precipitation_daily": {
+      "unit": "mm",
+      "bands": [
+        {"min": 0, "max": 0.1, "score": 100},
+        {"min": 0.1, "max": 1, "score": 80},
+        {"min": 1, "max": 5, "score": 50},
+        {"min": 5, "max": 10, "score": 20},
+        {"min": 10, "max": null, "score": 0}
+      ]
+    },
+    "relative_humidity_view": {
+      "unit": "%",
+      "bands": [
+        {"min": 0, "max": 60, "score": 100},
+        {"min": 60, "max": 75, "score": 80},
+        {"min": 75, "max": 85, "score": 60},
+        {"min": 85, "max": 95, "score": 35},
+        {"min": 95, "max": null, "score": 15}
+      ]
+    },
+    "apparent_temperature_active": {
+      "unit": "°C",
+      "bands": [
+        {"min": null, "max": -10, "score": 0},
+        {"min": -10, "max": 0, "score": 30},
+        {"min": 0, "max": 8, "score": 65},
+        {"min": 8, "max": 20, "score": 100},
+        {"min": 20, "max": 26, "score": 85},
+        {"min": 26, "max": 32, "score": 50},
+        {"min": 32, "max": 38, "score": 20},
+        {"min": 38, "max": null, "score": 0}
+      ]
+    },
+    "apparent_temperature_general": {
+      "unit": "°C",
+      "bands": [
+        {"min": null, "max": -5, "score": 0},
+        {"min": -5, "max": 5, "score": 35},
+        {"min": 5, "max": 12, "score": 70},
+        {"min": 12, "max": 25, "score": 100},
+        {"min": 25, "max": 30, "score": 75},
+        {"min": 30, "max": 35, "score": 40},
+        {"min": 35, "max": null, "score": 5}
+      ]
+    },
+    "wind_gusts_hiking": {
+      "unit": "km/h",
+      "bands": [
+        {"min": 0, "max": 20, "score": 100},
+        {"min": 20, "max": 35, "score": 75},
+        {"min": 35, "max": 50, "score": 40},
+        {"min": 50, "max": 65, "score": 15},
+        {"min": 65, "max": null, "score": 0}
+      ]
+    },
+    "wind_speed_outdoor": {
+      "unit": "km/h",
+      "bands": [
+        {"min": 0, "max": 15, "score": 100},
+        {"min": 15, "max": 25, "score": 80},
+        {"min": 25, "max": 40, "score": 45},
+        {"min": 40, "max": 55, "score": 15},
+        {"min": 55, "max": null, "score": 0}
+      ]
+    },
+    "snow_depth_ordinary_hiking": {
+      "unit": "m",
+      "bands": [
+        {"min": 0, "max": 0.001, "score": 100},
+        {"min": 0.001, "max": 0.01, "score": 80},
+        {"min": 0.01, "max": 0.05, "score": 55},
+        {"min": 0.05, "max": 0.15, "score": 25},
+        {"min": 0.15, "max": null, "score": 5}
+      ]
+    },
+    "uv_exposure": {
+      "unit": "index",
+      "bands": [
+        {"min": 0, "max": 3, "score": 100},
+        {"min": 3, "max": 6, "score": 90},
+        {"min": 6, "max": 8, "score": 65},
+        {"min": 8, "max": 11, "score": 35},
+        {"min": 11, "max": null, "score": 10}
+      ]
+    }
+  },
+  "experience_rules": {
+    "scenic_view": {
+      "name": "观景",
+      "metrics": [
+        {
+          "field": "visibility",
+          "aggregation": "mean",
+          "profile": "visibility_standard",
+          "weight": 5
+        },
+        {
+          "field": "cloud_cover",
+          "aggregation": "mean",
+          "profile": "cloud_cover_clear",
+          "weight": 4
+        },
+        {
+          "field": "precipitation",
+          "aggregation": "sum",
+          "profile": "precipitation_daily",
+          "weight": 3
+        },
+        {
+          "field": "relative_humidity_2m",
+          "aggregation": "mean",
+          "profile": "relative_humidity_view",
+          "weight": 2
+        }
+      ]
+    },
+    "hiking": {
+      "name": "徒步",
+      "metrics": [
+        {
+          "field": "precipitation",
+          "aggregation": "sum",
+          "profile": "precipitation_daily",
+          "weight": 5
+        },
+        {
+          "field": "wind_gusts_10m",
+          "aggregation": "max",
+          "profile": "wind_gusts_hiking",
+          "weight": 5
+        },
+        {
+          "field": "apparent_temperature",
+          "aggregation": "mean",
+          "profile": "apparent_temperature_active",
+          "weight": 4
+        },
+        {
+          "field": "snow_depth",
+          "aggregation": "max",
+          "profile": "snow_depth_ordinary_hiking",
+          "weight": 4
+        },
+        {
+          "field": "uv_index",
+          "aggregation": "max",
+          "profile": "uv_exposure",
+          "weight": 2
+        }
+      ]
+    },
+    "outdoor_visit": {
+      "name": "户外游览",
+      "metrics": [
+        {
+          "field": "apparent_temperature",
+          "aggregation": "mean",
+          "profile": "apparent_temperature_general",
+          "weight": 5
+        },
+        {
+          "field": "precipitation",
+          "aggregation": "sum",
+          "profile": "precipitation_daily",
+          "weight": 5
+        },
+        {
+          "field": "wind_speed_10m",
+          "aggregation": "max",
+          "profile": "wind_speed_outdoor",
+          "weight": 3
+        },
+        {
+          "field": "uv_index",
+          "aggregation": "max",
+          "profile": "uv_exposure",
+          "weight": 2
+        }
+      ]
+    }
+  },
+  "notes": [
+    "所有权重和区间均为 V0 经验参数，尚未引用旅游气候研究。",
+    "区间采用左闭右开语义；最后一个区间的 max 为 null，表示无上限。",
+    "评分面向无专业装备的普通游客。",
+    "危险天气的一票否决和景区关闭规则不包含在本文件中。"
+  ]
+}

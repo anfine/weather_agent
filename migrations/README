@@ -1,0 +1,9 @@
+Alembic migration environment for Weather Agent.
+
+Create a revision after importing all ORM models in migrations/env.py:
+
+    alembic revision --autogenerate -m "describe schema change"
+
+Apply all revisions:
+
+    alembic upgrade head
