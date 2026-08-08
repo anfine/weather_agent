@@ -1,0 +1,24 @@
+[Unit]
+Description=Weather Agent Gunicorn service
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=simple
+User=weather-agent
+Group=weather-agent
+WorkingDirectory=/opt/weather-agent
+EnvironmentFile=/etc/weather-agent/weather-agent.env
+Environment=TRUST_PROXY_HEADERS=1
+ExecStart=/opt/weather-agent/.venv/bin/gunicorn app:app
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=40
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

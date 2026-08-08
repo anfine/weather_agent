@@ -1,13 +1,20 @@
 import os
 from collections.abc import Iterator
 from contextlib import contextmanager
+from pathlib import Path
 
+from alembic.config import Config
+from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
 load_dotenv()
+
+
+ALEMBIC_CONFIG_PATH = Path(__file__).with_name("alembic.ini")
 
 
 def _database_url() -> str:
@@ -19,6 +26,10 @@ def _database_url() -> str:
 
 class Base(DeclarativeBase):
     """所有 ORM 模型共用的声明式基类。"""
+
+
+class DatabaseSchemaNotReadyError(RuntimeError):
+    """数据库迁移版本未达到当前代码要求。"""
 
 
 engine = create_engine(
@@ -53,6 +64,27 @@ def check_database_connection() -> None:
     """执行轻量查询；连接失败时保留原始数据库异常。"""
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
+
+
+def check_database_readiness() -> None:
+    """检查数据库连接和 Alembic revision 是否均可用于接收流量。"""
+    alembic_config = Config(str(ALEMBIC_CONFIG_PATH))
+    expected_heads = set(
+        ScriptDirectory.from_config(alembic_config).get_heads()
+    )
+
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+        current_heads = set(
+            MigrationContext.configure(connection).get_current_heads()
+        )
+
+    if current_heads != expected_heads:
+        raise DatabaseSchemaNotReadyError(
+            "数据库迁移版本未达到 head："
+            f"current={sorted(current_heads)}, "
+            f"expected={sorted(expected_heads)}"
+        )
 
 
 if __name__ == "__main__":

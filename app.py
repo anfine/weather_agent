@@ -10,7 +10,9 @@ from uuid import uuid4
 
 from flask import Blueprint, Flask, current_app, jsonify, render_template, request
 from markdown_it import MarkdownIt
+from werkzeug.middleware.proxy_fix import ProxyFix
 
+from database import DatabaseSchemaNotReadyError, check_database_readiness
 from main import invoke_agent_turn, needs_city_follow_up
 
 
@@ -23,6 +25,7 @@ DEFAULT_RATE_LIMIT_REQUESTS = 10
 DEFAULT_RATE_LIMIT_WINDOW_SECONDS = 3 * 60 * 60
 DEFAULT_RATE_LIMIT_CLIENTS = 10_000
 AgentTurnHandler = Callable[[list, str], dict]
+ReadinessChecker = Callable[[], None]
 MARKDOWN_RENDERER = MarkdownIt("js-default", {"breaks": True}).disable("image")
 
 
@@ -199,6 +202,7 @@ def create_api_blueprint(
     turn_handler: AgentTurnHandler,
     session_store: SessionStore,
     rate_limiter: RateLimiter,
+    readiness_checker: ReadinessChecker,
 ) -> Blueprint:
     """创建 API 蓝图；后续可原样迁移到独立 routes 包。"""
     api = Blueprint("api", __name__, url_prefix="/api")
@@ -206,6 +210,33 @@ def create_api_blueprint(
     @api.get("/health")
     def health():
         return jsonify({"status": "ok"})
+
+    @api.get("/ready")
+    def ready():
+        try:
+            readiness_checker()
+        except DatabaseSchemaNotReadyError:
+            current_app.logger.warning(
+                "Readiness check failed: database schema is not at head",
+                exc_info=True,
+            )
+            return jsonify(
+                {
+                    "status": "not_ready",
+                    "reason": "database_schema_outdated",
+                }
+            ), 503
+        except Exception:
+            current_app.logger.exception(
+                "Readiness check failed: database unavailable"
+            )
+            return jsonify(
+                {
+                    "status": "not_ready",
+                    "reason": "database_unavailable",
+                }
+            ), 503
+        return jsonify({"status": "ready"})
 
     @api.post("/chat")
     def chat():
@@ -280,15 +311,24 @@ def create_app(
     turn_handler: AgentTurnHandler = invoke_agent_turn,
     session_store: SessionStore | None = None,
     rate_limiter: RateLimiter | None = None,
+    readiness_checker: ReadinessChecker = check_database_readiness,
 ) -> Flask:
     """Flask 应用工厂。"""
     app = Flask(__name__)
     app.config.from_mapping(
         RATE_LIMIT_REQUESTS=DEFAULT_RATE_LIMIT_REQUESTS,
         RATE_LIMIT_WINDOW_SECONDS=DEFAULT_RATE_LIMIT_WINDOW_SECONDS,
+        TRUST_PROXY_HEADERS=os.getenv("TRUST_PROXY_HEADERS", "0") == "1",
     )
     if config:
         app.config.from_mapping(config)
+    if app.config["TRUST_PROXY_HEADERS"]:
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=1,
+            x_proto=1,
+            x_host=1,
+        )
     app.json.ensure_ascii = False
 
     store = session_store or InMemorySessionStore()
@@ -297,7 +337,12 @@ def create_app(
         window_seconds=float(app.config["RATE_LIMIT_WINDOW_SECONDS"]),
     )
     app.register_blueprint(
-        create_api_blueprint(turn_handler, store, limiter)
+        create_api_blueprint(
+            turn_handler,
+            store,
+            limiter,
+            readiness_checker,
+        )
     )
 
     @app.get("/")

@@ -6,6 +6,7 @@ from langchain.messages import AIMessage, HumanMessage
 os.environ.setdefault("DEEPSEEK_API_KEY", "test-key")
 
 from app import InMemoryRateLimiter, InMemorySessionStore, create_app
+from database import DatabaseSchemaNotReadyError
 
 
 class FlaskApiTests(unittest.TestCase):
@@ -36,6 +37,64 @@ class FlaskApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json(), {"status": "ok"})
+
+    def test_ready_when_database_and_migrations_are_ready(self) -> None:
+        ready_app = create_app(
+            {"TESTING": True},
+            turn_handler=lambda messages, query: {},
+            readiness_checker=lambda: None,
+        )
+
+        response = ready_app.test_client().get("/api/ready")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"status": "ready"})
+
+    def test_ready_rejects_outdated_database_schema(self) -> None:
+        def outdated_schema() -> None:
+            raise DatabaseSchemaNotReadyError("内部 revision 信息")
+
+        ready_app = create_app(
+            {"TESTING": True},
+            turn_handler=lambda messages, query: {},
+            readiness_checker=outdated_schema,
+        )
+
+        with self.assertLogs("app", level="WARNING"):
+            response = ready_app.test_client().get("/api/ready")
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.get_json(),
+            {
+                "status": "not_ready",
+                "reason": "database_schema_outdated",
+            },
+        )
+        self.assertNotIn(b"revision", response.data)
+
+    def test_ready_hides_database_connection_error(self) -> None:
+        def unavailable_database() -> None:
+            raise RuntimeError("mysql://user:secret@example.invalid")
+
+        ready_app = create_app(
+            {"TESTING": True},
+            turn_handler=lambda messages, query: {},
+            readiness_checker=unavailable_database,
+        )
+
+        with self.assertLogs("app", level="ERROR"):
+            response = ready_app.test_client().get("/api/ready")
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.get_json(),
+            {
+                "status": "not_ready",
+                "reason": "database_unavailable",
+            },
+        )
+        self.assertNotIn(b"secret", response.data)
 
     def test_index_renders_chat_page(self) -> None:
         response = self.client.get("/")
@@ -179,6 +238,78 @@ class FlaskApiTests(unittest.TestCase):
 
         self.assertEqual(first_response.status_code, 502)
         self.assertEqual(second_response.status_code, 429)
+
+    def test_trusted_proxy_uses_forwarded_client_ip_for_rate_limit(self) -> None:
+        def fake_turn(messages: list, query: str) -> dict:
+            return {
+                "messages": [
+                    HumanMessage(content=query),
+                    AIMessage(content="回答"),
+                ]
+            }
+
+        proxied_app = create_app(
+            {"TESTING": True, "TRUST_PROXY_HEADERS": True},
+            turn_handler=fake_turn,
+            rate_limiter=InMemoryRateLimiter(
+                max_requests=1,
+                window_seconds=3 * 60 * 60,
+            ),
+        )
+        client = proxied_app.test_client()
+
+        first = client.post(
+            "/api/chat",
+            json={"message": "第一位用户"},
+            headers={"X-Forwarded-For": "203.0.113.10"},
+        )
+        second = client.post(
+            "/api/chat",
+            json={"message": "第二位用户"},
+            headers={"X-Forwarded-For": "203.0.113.11"},
+        )
+        repeated = client.post(
+            "/api/chat",
+            json={"message": "第一位用户再次请求"},
+            headers={"X-Forwarded-For": "203.0.113.10"},
+        )
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(repeated.status_code, 429)
+
+    def test_forwarded_client_ip_is_ignored_without_proxy_trust(self) -> None:
+        def fake_turn(messages: list, query: str) -> dict:
+            return {
+                "messages": [
+                    HumanMessage(content=query),
+                    AIMessage(content="回答"),
+                ]
+            }
+
+        direct_app = create_app(
+            {"TESTING": True, "TRUST_PROXY_HEADERS": False},
+            turn_handler=fake_turn,
+            rate_limiter=InMemoryRateLimiter(
+                max_requests=1,
+                window_seconds=3 * 60 * 60,
+            ),
+        )
+        client = direct_app.test_client()
+
+        first = client.post(
+            "/api/chat",
+            json={"message": "第一次"},
+            headers={"X-Forwarded-For": "203.0.113.10"},
+        )
+        second = client.post(
+            "/api/chat",
+            json={"message": "第二次"},
+            headers={"X-Forwarded-For": "203.0.113.11"},
+        )
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 429)
 
     def test_delete_session_clears_context(self) -> None:
         first = self.client.post(
