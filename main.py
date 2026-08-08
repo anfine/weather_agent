@@ -332,15 +332,7 @@ def evaluate_city_outdoor(
     return evaluation
 
 
-agent = create_agent(
-    model=model,
-    tools=[
-        find_city,
-        get_weather,
-        evaluate_attraction,
-        evaluate_city_outdoor,
-    ],
-    system_prompt=(
+AGENT_SYSTEM_PROMPT = (
         "你是天气与景点游览助手。"
         "用户询问普通城市天气时，必须先调用 find_city 获取经纬度，"
         "再调用 get_weather。"
@@ -369,7 +361,21 @@ agent = create_agent(
         "可以回答支持范围内的部分，但不要把远期数据描述成可靠预报。"
         "比较出行日期时结合降水概率、降水量、天气代码、气温和风速。"
         "找不到地点时，应清楚说明尚未收录，并请用户提供所在城市以便查询普通天气。"
-    ),
+        "当已经获得天气或评分结果、足以回答用户问题时，给出结论后直接结束；"
+        "不要用问题、邀请继续查询或‘需要我再帮你……吗’之类的话收尾。"
+        "只有缺少城市等必要信息、当前问题确实无法继续处理时，才提出一个简短的澄清问题。"
+)
+
+
+agent = create_agent(
+    model=model,
+    tools=[
+        find_city,
+        get_weather,
+        evaluate_attraction,
+        evaluate_city_outdoor,
+    ],
+    system_prompt=AGENT_SYSTEM_PROMPT,
 )
 
 

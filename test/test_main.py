@@ -9,9 +9,14 @@ from langchain.messages import ToolMessage
 os.environ.setdefault("DEEPSEEK_API_KEY", "test-key")
 
 import main
+import scoring
 
 
 class WeatherToolTests(unittest.TestCase):
+    def test_agent_prompt_disables_optional_follow_up_questions(self) -> None:
+        self.assertIn("给出结论后直接结束", main.AGENT_SYSTEM_PROMPT)
+        self.assertIn("只有缺少城市等必要信息", main.AGENT_SYSTEM_PROMPT)
+
     @patch("main.requests.get")
     def test_current_weather_keeps_timezone_metadata(self, get: Mock) -> None:
         get.return_value.json.return_value = {
@@ -110,12 +115,15 @@ class WeatherToolTests(unittest.TestCase):
             )
 
     @patch("main.get_weather")
+    @patch("main.load_attraction")
     def test_evaluate_attraction_uses_weather_point_and_scoring(
         self,
+        attraction_loader: Mock,
         weather_tool: Mock,
     ) -> None:
         target = date.today() + timedelta(days=1)
         target_text = target.isoformat()
+        attraction_loader.return_value = scoring.load_attraction_from_json("华山")
         weather_tool.invoke.return_value = {
             "hourly": {
                 "time": [
@@ -202,10 +210,13 @@ class WeatherToolTests(unittest.TestCase):
         self.assertIn("灵隐寺尚未收录", result["weather_notice"])
 
     @patch("main.get_weather")
+    @patch("main.load_attraction")
     def test_unknown_attraction_returns_not_found_without_weather(
         self,
+        attraction_loader: Mock,
         weather_tool: Mock,
     ) -> None:
+        attraction_loader.side_effect = ValueError("找不到景点")
         result = main.evaluate_attraction.invoke(
             {
                 "attraction_name": "不存在的测试景点",

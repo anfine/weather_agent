@@ -25,11 +25,11 @@ def load_scoring_rules(
     return rules
 
 
-def load_attraction(
+def load_attraction_from_json(
     query: str,
     path: str | Path = DEFAULT_ATTRACTIONS_PATH,
 ) -> dict[str, Any]:
-    """根据 ID、名称或别名读取一条景点数据。"""
+    """从保留的 JSON 基线按 ID、名称或别名读取景点。"""
     normalized_query = query.strip().casefold()
     if not normalized_query:
         raise ValueError("景点查询不能为空")
@@ -47,6 +47,13 @@ def load_attraction(
             return attraction
 
     raise ValueError(f"找不到景点：{query}")
+
+
+def load_attraction(query: str) -> dict[str, Any]:
+    """从 MySQL 按 ID、名称或别名读取一条景点数据。"""
+    from repositories.attraction import load_attraction as load_from_database
+
+    return load_from_database(query)
 
 
 def _parse_target_date(value: str) -> date:

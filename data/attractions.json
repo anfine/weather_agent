@@ -2193,6 +2193,8 @@
           "importance": 3
         }
       ],
+      "coverage": "regional_reference",
+      "weather_notice": "地点范围或高差较大，评分只代表当前默认采样点，请将结果视为区域级参考。",
       "weather_points": [
         {
           "id": "south_peak",

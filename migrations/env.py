@@ -3,6 +3,12 @@ from logging.config import fileConfig
 from alembic import context
 
 from database import Base, engine
+from models import (  # noqa: F401
+    Attraction,
+    AttractionAlias,
+    AttractionExperienceTag,
+    WeatherPoint,
+)
 
 
 config = context.config
@@ -10,8 +16,6 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# ORM 模型创建后必须在这里导入，确保表已经注册到 Base.metadata。
-# 例如：from models import Attraction  # noqa: F401
 target_metadata = Base.metadata
 
 

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b0b0c">
+    <meta
+      name="description"
+      content="结合景点天气与活动类型，判断未来一周是否适合出行。"
+    >
+    <title>出行天气参谋</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/app.css') }}"
+    >
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <h1>出行天气参谋</h1>
+          <p>结合景点天气与活动类型，判断未来一周是否适合出行。</p>
+        </div>
+        <button id="restart-button" class="button button-quiet" type="button" hidden>
+          重新开始
+        </button>
+      </header>
+
+      <section id="conversation" class="conversation" aria-label="对话内容">
+        <div id="welcome" class="welcome">
+          <p class="welcome-copy">
+            告诉我你想去的景点和时间，我会结合天气与活动类型给出建议。
+          </p>
+          <div class="examples">
+            <p class="section-label">试试这样问：</p>
+            <div class="example-list">
+              <button class="example-button" type="button">这周末适合去华山吗？</button>
+              <button class="example-button" type="button">明天去黄山观景怎么样？</button>
+              <button class="example-button" type="button">未来三天西湖哪天适合户外游览？</button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="message-list"
+          class="message-list"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          hidden
+        ></div>
+      </section>
+
+      <form id="chat-form" class="composer" novalidate>
+        <div class="composer-row">
+          <textarea
+            id="message-input"
+            name="message"
+            rows="1"
+            maxlength="2000"
+            placeholder="描述你想去的景点和时间，例如：这周末适合去华山吗？"
+            aria-label="输入你的问题"
+            required
+          ></textarea>
+          <button id="send-button" class="button button-primary" type="submit" disabled>
+            发送
+          </button>
+        </div>
+        <p class="composer-hint">Enter 发送 · Shift + Enter 换行</p>
+      </form>
+
+      <p class="disclaimer">天气和评分仅供出行参考，请留意临近预报与景区公告。</p>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  </body>
+</html>

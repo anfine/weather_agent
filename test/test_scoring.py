@@ -29,11 +29,11 @@ class ScoringTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.rules = scoring.load_scoring_rules()
-        cls.attraction = scoring.load_attraction("华山")
+        cls.attraction = scoring.load_attraction_from_json("华山")
         cls.hourly = make_hourly_fixture()
 
     def test_load_attraction_by_alias(self) -> None:
-        attraction = scoring.load_attraction("Mount Hua")
+        attraction = scoring.load_attraction_from_json("Mount Hua")
         self.assertEqual(attraction["id"], "cn-shaanxi-huashan")
         self.assertEqual(attraction["default_weather_point_id"], "south_peak")
 
