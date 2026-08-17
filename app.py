@@ -14,6 +14,9 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from database import DatabaseSchemaNotReadyError, check_database_readiness
 from main import invoke_agent_turn, needs_city_follow_up
+from rate_limiter import RateLimiter, RateLimitDecision
+from redis_client import redis_client
+from redis_rate_limiter import RedisRateLimiter
 
 
 MAX_MESSAGE_LENGTH = 2000
@@ -37,19 +40,6 @@ class SessionStore(Protocol):
     def save(self, session_id: str, messages: list) -> None: ...
 
     def delete(self, session_id: str) -> bool: ...
-
-
-class RateLimiter(Protocol):
-    """Flask API 使用的匿名请求限流接口。"""
-
-    def check(self, client_id: str) -> "RateLimitDecision": ...
-
-
-@dataclass(frozen=True)
-class RateLimitDecision:
-    allowed: bool
-    remaining: int
-    retry_after_seconds: int = 0
 
 
 class InMemoryRateLimiter:
@@ -332,10 +322,25 @@ def create_app(
     app.json.ensure_ascii = False
 
     store = session_store or InMemorySessionStore()
-    limiter = rate_limiter or InMemoryRateLimiter(
-        max_requests=int(app.config["RATE_LIMIT_REQUESTS"]),
-        window_seconds=float(app.config["RATE_LIMIT_WINDOW_SECONDS"]),
-    )
+
+    if rate_limiter is None:
+        max_requests = int(app.config["RATE_LIMIT_REQUESTS"])
+        window_seconds = float(
+            app.config["RATE_LIMIT_WINDOW_SECONDS"]
+        )
+        fallback_limiter = InMemoryRateLimiter(
+            max_requests=max_requests,
+            window_seconds=window_seconds,
+        )
+        limiter = RedisRateLimiter(
+            redis_client,
+            max_requests=max_requests,
+            window_seconds=window_seconds,
+            fallback=fallback_limiter,
+        )
+    else:
+        limiter = rate_limiter
+
     app.register_blueprint(
         create_api_blueprint(
             turn_handler,

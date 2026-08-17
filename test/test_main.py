@@ -17,8 +17,14 @@ class WeatherToolTests(unittest.TestCase):
         self.assertIn("给出结论后直接结束", main.AGENT_SYSTEM_PROMPT)
         self.assertIn("只有缺少城市等必要信息", main.AGENT_SYSTEM_PROMPT)
 
+    @patch("main.weather_cache")
     @patch("main.requests.get")
-    def test_current_weather_keeps_timezone_metadata(self, get: Mock) -> None:
+    def test_current_weather_keeps_timezone_metadata(
+        self,
+        get: Mock,
+        weather_cache: Mock,
+    ) -> None:
+        weather_cache.get.return_value = None
         get.return_value.json.return_value = {
             "timezone": "Asia/Shanghai",
             "timezone_abbreviation": "GMT+8",
@@ -40,10 +46,20 @@ class WeatherToolTests(unittest.TestCase):
         self.assertEqual(params["temperature_unit"], "celsius")
         self.assertEqual(params["wind_speed_unit"], "kmh")
         self.assertEqual(params["precipitation_unit"], "mm")
+        self.assertEqual(
+            weather_cache.set.call_args.kwargs,
+            {"ttl_seconds": main.CURRENT_WEATHER_CACHE_TTL_SECONDS},
+        )
 
+    @patch("main.weather_cache")
     @patch("main.requests.get")
-    def test_forecast_requests_daily_and_hourly_fields(self, get: Mock) -> None:
+    def test_forecast_requests_daily_and_hourly_fields(
+        self,
+        get: Mock,
+        weather_cache: Mock,
+    ) -> None:
         tomorrow = date.today() + timedelta(days=1)
+        weather_cache.get_many.return_value = [None]
         get.return_value.json.return_value = {
             "timezone": "Asia/Shanghai",
             "timezone_abbreviation": "GMT+8",
@@ -73,6 +89,10 @@ class WeatherToolTests(unittest.TestCase):
         self.assertEqual(params["daily"], ",".join(main.DAILY_FIELDS))
         self.assertEqual(params["timezone"], "auto")
         self.assertEqual(params["elevation"], 43.5)
+        self.assertEqual(
+            weather_cache.set_many.call_args.kwargs,
+            {"ttl_seconds": main.FORECAST_WEATHER_CACHE_TTL_SECONDS},
+        )
 
     def test_tourism_weather_fields_are_requested(self) -> None:
         self.assertIn("relative_humidity_2m", main.CURRENT_FIELDS)

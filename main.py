@@ -12,7 +12,13 @@ from langchain.messages import AIMessage, ToolMessage
 from langchain.tools import tool
 from langchain_openai import ChatOpenAI
 
+from redis_client import redis_client
 from scoring import evaluate_attraction_weather, load_attraction
+from weather_cache import (
+    WeatherCache,
+    get_current_with_cache,
+    get_forecast_with_cache,
+)
 
 
 load_dotenv()
@@ -20,6 +26,12 @@ load_dotenv()
 
 GEOCODING_API = "https://geocoding-api.open-meteo.com/v1/search"
 WEATHER_API = "https://api.open-meteo.com/v1/forecast"
+CURRENT_WEATHER_CACHE_TTL_SECONDS = int(
+    os.getenv("CURRENT_WEATHER_CACHE_TTL_SECONDS", "300")
+)
+FORECAST_WEATHER_CACHE_TTL_SECONDS = int(
+    os.getenv("FORECAST_WEATHER_CACHE_TTL_SECONDS", "1800")
+)
 
 CURRENT_FIELDS = [
     "temperature_2m",
@@ -64,6 +76,8 @@ DAILY_FIELDS = [
     "sunrise",
     "sunset",
 ]
+
+weather_cache = WeatherCache(redis_client)
 
 model = ChatOpenAI(
     model="deepseek-v4-flash",
@@ -113,6 +127,19 @@ def _parse_forecast_range(start_date: str, end_date: str) -> tuple[date, date]:
     return start, end
 
 
+def _request_weather(
+    params: dict[str, object],
+) -> dict:
+    """调用 Open-Meteo 并返回原始天气 payload。"""
+    response = requests.get(
+        WEATHER_API,
+        params=params,
+        timeout=10,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
 @tool
 def get_weather(
     latitude: float,
@@ -155,15 +182,15 @@ def get_weather(
     else:
         params["current"] = ",".join(CURRENT_FIELDS)
 
-    response = requests.get(
-        WEATHER_API,
-        params=params,
-        timeout=10,
-    )
-    response.raise_for_status()
-    payload = response.json()
-
     if not is_forecast:
+        payload = get_current_with_cache(
+            weather_cache,
+            latitude=latitude,
+            longitude=longitude,
+            elevation=elevation,
+            fetch_current=lambda: _request_weather(params),
+            ttl_seconds=CURRENT_WEATHER_CACHE_TTL_SECONDS,
+        )
         return {
             "timezone": payload.get("timezone"),
             "timezone_abbreviation": payload.get("timezone_abbreviation"),
@@ -171,6 +198,25 @@ def get_weather(
             "current_units": payload.get("current_units"),
             "current": payload["current"],
         }
+
+    def fetch_forecast(fetch_start: date, fetch_end: date) -> dict:
+        request_params = {
+            **params,
+            "start_date": fetch_start.isoformat(),
+            "end_date": fetch_end.isoformat(),
+        }
+        return _request_weather(request_params)
+
+    payload = get_forecast_with_cache(
+        weather_cache,
+        latitude=latitude,
+        longitude=longitude,
+        elevation=elevation,
+        start_date=start,
+        end_date=end,
+        fetch_forecast=fetch_forecast,
+        ttl_seconds=FORECAST_WEATHER_CACHE_TTL_SECONDS,
+    )
 
     result = {
         "timezone": payload.get("timezone"),

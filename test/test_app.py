@@ -29,6 +29,7 @@ class FlaskApiTests(unittest.TestCase):
             {"TESTING": True},
             turn_handler=fake_turn,
             session_store=InMemorySessionStore(),
+            rate_limiter=InMemoryRateLimiter(),
         )
         self.client = flask_app.test_client()
 
