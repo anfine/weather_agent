@@ -1,4 +1,31 @@
 services:
+  app:
+    build:
+      context: .
+    image: weather-agent:dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-weather_agent}:${MYSQL_PASSWORD:-weather_agent_dev}@mysql:3306/${MYSQL_DATABASE:-weather_agent}?charset=utf8mb4
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/api/ready', timeout=2)"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   mysql:
     image: mysql:8.4
     restart: unless-stopped

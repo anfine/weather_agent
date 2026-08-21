@@ -71,28 +71,27 @@ result = evaluate_attraction_weather(
 执行确定性评分，再由模型解释结果。普通城市天气仍然使用
 `find_city -> get_weather` 链路。
 
-## 导入景点候选数据
+## 导入全国景区数据
 
-`scripts/import_attractions.py` 读取 `data/54个景点.xlsx` 中的百度 BD-09 坐标，
-保留原始值，离线近似转换为 WGS84，并通过 Open-Meteo Elevation API 批量
-补全海拔：
-
-```bash
-python3 scripts/import_attractions.py
-```
-
-结果写入 `data/attractions_candidates.json`。城市和普通景点标记为自动数据；
-山岳、峡谷、高原等地形敏感地点标记为 `needs_review`。华山和黄山使用已
-核验的代表峰坐标与海拔覆盖原始粗略坐标。原始 Excel 不会被修改。
-
-候选数据确认后，可生成 Agent 直接读取的单采样点景点库：
+`scripts/import_attractions.py` 读取 `data/01-23年全国景区数据.xlsx` 的 14 个
+业务列，直接使用表中的 WGS84 坐标，并根据“省份、名称、地址”生成稳定 ID。
+导入前可先执行只读检查：
 
 ```bash
-python3 scripts/build_runtime_attractions.py
+.venv/bin/python scripts/import_attractions.py --dry-run
 ```
 
-V2 暂时不维护复杂景区的多海拔路线。地形敏感景点仍使用一个默认点，并在
-Agent 回答中明确说明结果只是区域级参考。
+确认统计结果后执行幂等同步和数据库校验：
+
+```bash
+.venv/bin/python scripts/import_attractions.py
+.venv/bin/python scripts/check_attractions.py
+```
+
+同一业务键的重复记录会合并；等级冲突优先采用评定时间更新的记录并输出
+冲突报告。尚未完成 LLM 活动分类的全国景区标记为 `pending`，暂时使用
+`outdoor_visit` 通用户外规则。`data/attractions.json` 继续保留精选景点、别名
+和评分基线；种子导入后再运行全国导入器，可保留这些精选数据。
 
 ## 城市级降级评价
 
@@ -169,146 +168,91 @@ V1 会话保存在 Flask 进程内存中，服务重启即清空。服务最多�
 会话保留最近 6 轮，空闲 30 分钟后过期；匿名聊天接口按客户端 IP 限制为 3 小时
 10 次请求。
 
-## Ubuntu 生产部署
+## Docker Compose 部署
 
-线上使用以下链路：
+应用、MySQL 和 Redis 统一由 Docker Compose 管理：
 
 ```text
 weather.anfine.top
   → Caddy（HTTPS）
   → 127.0.0.1:8000
-  → Gunicorn（1 worker、4 threads）
-  → Flask
-  → Docker MySQL
+  → app 容器：Gunicorn（1 worker、4 threads）+ Flask
+       ├── mysql:3306
+       └── redis:6379
 ```
 
-Flask 开发服务器仅用于本地调试，公网环境必须使用 Gunicorn。下面假设代码位于
-`/opt/weather-agent`，服务使用无登录权限的 `weather-agent` 用户运行。
+`app` 使用非 root 用户运行。MySQL、Redis 和 app 的宿主机端口只绑定到
+`127.0.0.1`，不会直接暴露到公网；容器之间通过 Compose 服务名通信。
 
-### 1. 创建用户并获取代码
+### 准备环境
+
+服务器需要安装 Git、Docker Engine 和 Docker Compose 插件，不需要在宿主机创建
+Python 虚拟环境。下面假设代码位于 `/opt/weather-agent`：
 
 ```bash
-sudo useradd \
-  --system \
-  --create-home \
-  --home-dir /var/lib/weather-agent \
-  --shell /usr/sbin/nologin \
-  weather-agent
-
-sudo install -d \
-  -o weather-agent \
-  -g weather-agent \
-  -m 0755 \
-  /opt/weather-agent
-
-sudo -u weather-agent git clone \
+sudo git clone \
   https://github.com/anfine/weather_agent.git \
   /opt/weather-agent
+
+cd /opt/weather-agent
+sudo cp .env.example .env
+sudo chmod 600 .env
+sudoedit .env
 ```
 
-私有仓库需要先为服务器配置只读 Deploy Key。
-
-### 2. 安装 Python 依赖
-
-```bash
-sudo apt update
-sudo apt install -y git python3-venv python3-pip
-
-sudo -u weather-agent \
-  python3 -m venv /opt/weather-agent/.venv
-
-sudo -u weather-agent \
-  /opt/weather-agent/.venv/bin/pip install \
-  -r /opt/weather-agent/requirements.txt
-```
-
-### 3. 配置生产环境变量
-
-真实密钥只保存在服务器，不提交 Git：
-
-```bash
-sudo install -d \
-  -o root \
-  -g weather-agent \
-  -m 0750 \
-  /etc/weather-agent
-
-sudo install \
-  -o root \
-  -g weather-agent \
-  -m 0640 \
-  /opt/weather-agent/deploy/weather-agent.env.example \
-  /etc/weather-agent/weather-agent.env
-
-sudoedit /etc/weather-agent/weather-agent.env
-```
-
-填写 `DEEPSEEK_API_KEY`、MySQL 应用密码和 root 密码，并保证 `DATABASE_URL` 中的
-应用密码与 `MYSQL_PASSWORD` 相同。建议使用十六进制随机密码，避免 URL 编码问题：
+填写 `DEEPSEEK_API_KEY`、`MYSQL_PASSWORD` 和 `MYSQL_ROOT_PASSWORD`。建议使用
+URL 安全的随机密码，避免数据库连接字符串的转义问题：
 
 ```bash
 openssl rand -hex 24
 ```
 
-### 4. 启动 MySQL
+`.env` 只在容器启动时注入，不会进入应用镜像，也不能提交到 Git。Compose 会在
+app 容器内把数据库和 Redis 地址覆盖为 `mysql:3306` 与 `redis:6379`。
 
-MySQL 由 Docker Compose 管理，并且只映射到宿主机回环地址：
-
-```bash
-sudo docker compose \
-  --env-file /etc/weather-agent/weather-agent.env \
-  -f /opt/weather-agent/docker-compose.yml \
-  up -d mysql
-
-sudo docker compose \
-  --env-file /etc/weather-agent/weather-agent.env \
-  -f /opt/weather-agent/docker-compose.yml \
-  ps
-```
-
-等待 MySQL 状态变为 `healthy`。
-
-### 5. 执行迁移、种子导入和检查
+修改配置后先做只读检查。不要分享完整的 `docker compose config` 输出，因为它会
+展开密钥：
 
 ```bash
-sudo -u weather-agent bash -c '
-  set -a
-  source /etc/weather-agent/weather-agent.env
-  set +a
-  cd /opt/weather-agent
-
-  .venv/bin/alembic upgrade head
-  .venv/bin/python scripts/seed_attractions.py
-  .venv/bin/python scripts/check_attractions.py
-  .venv/bin/python -c "
-from database import check_database_readiness
-check_database_readiness()
-print(\"database ready\")
-"
-'
+sudo docker compose config --quiet
+sudo docker compose config --services
 ```
 
-种子脚本是幂等的，重复执行不会产生重复景点。
+### 首次部署
 
-### 6. 安装并启动 Gunicorn 服务
+先构建应用镜像并启动数据服务：
 
 ```bash
-sudo install \
-  -o root \
-  -g root \
-  -m 0644 \
-  /opt/weather-agent/deploy/weather-agent.service \
-  /etc/systemd/system/weather-agent.service
-
-sudo systemctl daemon-reload
-sudo systemctl enable weather-agent
-sudo systemctl start weather-agent
-
-sudo systemctl status weather-agent --no-pager
-sudo journalctl -u weather-agent -n 100 --no-pager
+sudo docker compose build app
+sudo docker compose up -d mysql redis
+sudo docker compose ps
 ```
 
-先在服务器本机验证 Gunicorn：
+等待 MySQL 和 Redis 均变为 `healthy`，再用同一个 app 镜像运行一次性数据库任务：
+
+```bash
+sudo docker compose run --rm app alembic upgrade head
+sudo docker compose run --rm app python scripts/seed_attractions.py
+sudo docker compose run --rm app python scripts/import_attractions.py
+sudo docker compose run --rm app python scripts/check_attractions.py
+```
+
+执行顺序不能交换：Alembic 先创建当前表结构，精选种子提供人工标签、别名和气象点，
+全国导入再合并批量数据，最后的检查脚本验证14,840个全国业务键和14,893条最终景点。
+种子和全国导入均为幂等操作，可以安全重试；检查失败会返回非零退出码。
+
+数据通过验收后再启动 Web 服务：
+
+```bash
+sudo docker compose up -d app
+sudo docker compose ps
+```
+
+app 健康检查使用 `/api/ready`，只有 Gunicorn 能响应、MySQL 可连接且 Alembic 已达到
+`head` 时才会变为 `healthy`。迁移和导入不会藏在 Gunicorn 启动命令中，因此多个
+worker 或容器启动时不会重复写数据库。
+
+### 本机冒烟测试
 
 ```bash
 curl --fail http://127.0.0.1:8000/
@@ -316,26 +260,31 @@ curl --fail http://127.0.0.1:8000/api/health
 curl --fail http://127.0.0.1:8000/api/ready
 ```
 
-预期两个检查接口分别返回 `{"status":"ok"}` 和 `{"status":"ready"}`。
+两个检查接口应分别返回 `{"status":"ok"}` 和 `{"status":"ready"}`。不调用 LLM
+也可以在 app 容器内验证正式名称与别名查询：
 
-### 7. 配置 Caddy 和 DNS
+```bash
+sudo docker compose exec app python -c \
+"from repositories.attraction import load_attraction; a = load_attraction('华山'); b = load_attraction('西岳'); print({'name': a['name'], 'same_id': a['id'] == b['id']})"
+```
+
+预期输出 `{'name': '华山', 'same_id': True}`。随后在网页完成一次真实对话，确认天气
+查询、评分和会话链路可用；聊天接口按 IP 限流，冒烟测试不要连续发送过多问题。
+
+### 配置 Caddy 和 DNS
 
 为 `weather.anfine.top` 添加指向服务器公网 IPv4 的 DNS `A` 记录。没有正确配置
 公网 IPv6 时不要添加 `AAAA` 记录。若使用 Cloudflare，V1 建议先使用“仅 DNS”。
 
-`deploy/Caddyfile` 保留现有 `anfine.top` 代理，并为 Weather Agent 添加独立站点：
+`deploy/Caddyfile` 将公网 HTTPS 请求转发到只监听宿主机回环地址的 app 端口：
 
 ```caddyfile
-anfine.top {
-    reverse_proxy 127.0.0.1:8080
-}
-
 weather.anfine.top {
     reverse_proxy 127.0.0.1:8000
 }
 ```
 
-修改服务器配置前先备份，验证成功后只 reload，不 restart：
+修改现有 Caddy 配置前先备份，验证成功后只 reload：
 
 ```bash
 sudo cp -a /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-weather
@@ -348,46 +297,55 @@ sudo -u caddy /usr/bin/caddy validate \
 sudo systemctl reload caddy
 ```
 
-### 8. 线上冒烟测试
+线上检查：
 
 ```bash
-curl -I https://anfine.top/
-curl -I https://weather.anfine.top/
+curl --fail https://weather.anfine.top/
 curl --fail https://weather.anfine.top/api/health
 curl --fail https://weather.anfine.top/api/ready
 ```
 
-随后在网页验证华山、别名“西岳”、“老君山 → 河南洛阳”的最小追问、清空会话和
-错误提示。聊天接口按 IP 限流，冒烟测试不要连续发送过多问题。
+### 更新版本
 
-### 9. 更新版本
+应用更新时先拉取代码并构建新镜像：
 
 ```bash
-sudo -u weather-agent git -C /opt/weather-agent pull --ff-only
-sudo -u weather-agent \
-  /opt/weather-agent/.venv/bin/pip install \
-  -r /opt/weather-agent/requirements.txt
+cd /opt/weather-agent
+sudo git pull --ff-only
+sudo docker compose build app
 ```
 
-更新数据库并重启应用：
+停止 Web 服务后执行数据库任务，避免导入和清缓存期间仍有旧请求写回缓存：
 
 ```bash
-sudo -u weather-agent bash -c '
-  set -a
-  source /etc/weather-agent/weather-agent.env
-  set +a
-  cd /opt/weather-agent
-  .venv/bin/alembic upgrade head
-  .venv/bin/python scripts/seed_attractions.py
-'
+sudo docker compose stop app
+sudo docker compose up -d mysql redis
+sudo docker compose run --rm app alembic upgrade head
+sudo docker compose run --rm app python scripts/seed_attractions.py
+sudo docker compose run --rm app python scripts/import_attractions.py
+sudo docker compose run --rm app python scripts/check_attractions.py
+sudo docker compose up -d app
+```
 
-sudo systemctl restart weather-agent
+最后确认容器和就绪状态：
+
+```bash
+sudo docker compose ps
 curl --fail http://127.0.0.1:8000/api/ready
 ```
 
-Caddyfile 没有变化时不需要 reload Caddy。应用日志通过以下命令查看：
+自动部署脚本应启用 `set -e`，让迁移、导入或检查的非零退出码立即中止发布。不要把
+`alembic upgrade` 或数据导入放进 Dockerfile，也不要放进每个 Gunicorn worker 的
+启动流程。
+
+### 日志和数据卷
 
 ```bash
-sudo journalctl -u weather-agent -f
-sudo journalctl -u caddy -f
+sudo docker compose logs -f app
+sudo docker compose logs --tail=100 mysql
+sudo docker compose logs --tail=100 redis
 ```
+
+MySQL 数据保存在 Compose 命名卷 `mysql_data` 中。普通的镜像重建、容器重建和
+`docker compose down` 不会删除数据；`docker compose down --volumes` 会永久删除
+数据库卷，只能用于明确创建的临时验收环境。
