@@ -1,0 +1,127 @@
+name: Test and deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: "sqlite+pysqlite:///:memory:"
+      DEEPSEEK_API_KEY: test-key
+      APP_ENV_FILE: .env.example
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m unittest discover -s test -v
+
+      - name: Validate Compose configuration
+        run: docker compose --env-file .env.example config --quiet
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    concurrency:
+      group: production-deployment
+      cancel-in-progress: false
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+    steps:
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy production
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          ssh \
+            -i ~/.ssh/deploy_key \
+            -p "$DEPLOY_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "DEPLOY_SHA='$DEPLOY_SHA' bash -se" <<'REMOTE'
+          set -Eeuo pipefail
+
+          readonly deploy_dir=/opt/weather-agent
+          readonly env_file=/etc/weather-agent/weather-agent.env
+
+          test -d "$deploy_dir/.git"
+          test -r "$env_file"
+
+          cd "$deploy_dir"
+          git fetch --prune origin main
+          git checkout --detach "$DEPLOY_SHA"
+
+          export APP_ENV_FILE="$env_file"
+          compose=(
+            docker compose
+            --project-name weather-agent
+            --env-file "$env_file"
+            --file "$deploy_dir/docker-compose.yml"
+          )
+
+          "${compose[@]}" config --quiet
+          "${compose[@]}" build app
+          "${compose[@]}" up \
+            --detach \
+            --no-recreate \
+            --wait \
+            --wait-timeout 120 \
+            mysql redis
+
+          "${compose[@]}" stop app
+          "${compose[@]}" run --rm --no-deps app alembic upgrade head
+          "${compose[@]}" run \
+            --rm \
+            --no-deps \
+            app python scripts/seed_attractions.py
+          "${compose[@]}" run \
+            --rm \
+            --no-deps \
+            app python scripts/import_attractions.py
+          "${compose[@]}" run \
+            --rm \
+            --no-deps \
+            app python scripts/check_attractions.py
+
+          "${compose[@]}" up \
+            --detach \
+            --no-deps \
+            --wait \
+            --wait-timeout 120 \
+            app
+          curl --fail --silent --show-error \
+            http://127.0.0.1:8000/api/ready
+          REMOTE

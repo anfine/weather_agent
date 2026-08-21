@@ -5,7 +5,7 @@ services:
     image: weather-agent:dev
     restart: unless-stopped
     env_file:
-      - .env
+      - ${APP_ENV_FILE:-.env}
     environment:
       DATABASE_URL: mysql+pymysql://${MYSQL_USER:-weather_agent}:${MYSQL_PASSWORD:-weather_agent_dev}@mysql:3306/${MYSQL_DATABASE:-weather_agent}?charset=utf8mb4
       REDIS_URL: redis://redis:6379/0
