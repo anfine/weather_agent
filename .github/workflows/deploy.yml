@@ -47,14 +47,17 @@ jobs:
       cancel-in-progress: false
     env:
       DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
     steps:
       - name: Configure SSH
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
+          : "${DEPLOY_SSH_KEY:?production secret DEPLOY_SSH_KEY is required}"
+          : "${DEPLOY_KNOWN_HOSTS:?production secret DEPLOY_KNOWN_HOSTS is required}"
           install -m 700 -d ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
@@ -65,16 +68,20 @@ jobs:
         env:
           DEPLOY_SHA: ${{ github.sha }}
         run: |
+          : "${DEPLOY_HOST:?production secret DEPLOY_HOST is required}"
+          : "${DEPLOY_DIR:?production variable DEPLOY_DIR is required}"
+          : "${DEPLOY_PORT:?production variable DEPLOY_PORT is required}"
+          : "${DEPLOY_USER:?production variable DEPLOY_USER is required}"
           ssh \
             -i ~/.ssh/deploy_key \
             -p "$DEPLOY_PORT" \
             -o BatchMode=yes \
             -o IdentitiesOnly=yes \
             "$DEPLOY_USER@$DEPLOY_HOST" \
-            "DEPLOY_SHA='$DEPLOY_SHA' bash -se" <<'REMOTE'
+            "DEPLOY_SHA='$DEPLOY_SHA' DEPLOY_DIR='$DEPLOY_DIR' bash -se" <<'REMOTE'
           set -Eeuo pipefail
 
-          readonly deploy_dir=/opt/weather-agent
+          readonly deploy_dir="$DEPLOY_DIR"
           readonly env_file=/etc/weather-agent/weather-agent.env
 
           test -d "$deploy_dir/.git"
