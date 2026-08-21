@@ -1,4 +1,4 @@
-from repositories.attraction import load_attraction
+from repositories.attraction import AmbiguousAttractionError, load_attraction
 
 
-__all__ = ["load_attraction"]
+__all__ = ["AmbiguousAttractionError", "load_attraction"]

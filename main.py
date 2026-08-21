@@ -13,6 +13,7 @@ from langchain.tools import tool
 from langchain_openai import ChatOpenAI
 
 from redis_client import redis_client
+from repositories.attraction import AmbiguousAttractionError
 from scoring import evaluate_attraction_weather, load_attraction
 from weather_cache import (
     WeatherCache,
@@ -248,6 +249,13 @@ def evaluate_attraction(
     """
     try:
         attraction = load_attraction(attraction_name)
+    except AmbiguousAttractionError as error:
+        return {
+            "status": "ambiguous",
+            "requested_place": attraction_name,
+            "candidates": error.candidates,
+            "notice": "存在多个同名景点，请补充省、市或区县。",
+        }
     except ValueError:
         return {
             "status": "not_found",
@@ -450,7 +458,10 @@ def needs_city_follow_up(messages: list) -> bool:
         if message.name == "evaluate_city_outdoor":
             return False
         if message.name == "evaluate_attraction":
-            return _tool_payload(message).get("status") == "not_found"
+            return _tool_payload(message).get("status") in {
+                "not_found",
+                "ambiguous",
+            }
     return False
 
 

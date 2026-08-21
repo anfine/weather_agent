@@ -1,10 +1,57 @@
+import logging
+import os
 from typing import Any
 
+from redis.exceptions import RedisError
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
+from attraction_cache import AttractionCache
 from database import SessionLocal
 from models import Attraction, AttractionAlias
+from redis_client import redis_client
+
+
+logger = logging.getLogger(__name__)
+
+# 正常景点：缓存 6 小时
+ATTRACTION_CACHE_TTL_SECONDS = int(
+    os.getenv("ATTRACTION_CACHE_TTL_SECONDS", "21600")
+)
+# 查不到：缓存 5 分钟
+ATTRACTION_NOT_FOUND_CACHE_TTL_SECONDS = int(
+    os.getenv("ATTRACTION_NOT_FOUND_CACHE_TTL_SECONDS", "300")
+)
+
+attraction_cache = AttractionCache(redis_client)
+
+
+class AmbiguousAttractionError(ValueError):
+    """景点名称对应多个不同地点。"""
+
+    def __init__(self, query: str, candidates: list[dict[str, str | None]]) -> None:
+        self.query = query
+        self.candidates = candidates
+        locations = "、".join(
+            "".join(
+                value or ""
+                for value in (
+                    candidate["province"],
+                    candidate["city"],
+                    candidate["district"],
+                )
+            )
+            for candidate in candidates
+        )
+        super().__init__(f"景点名称 {query} 不唯一，请补充地区：{locations}")
+
+
+def _with_children(statement):
+    return statement.options(
+        selectinload(Attraction.aliases),
+        selectinload(Attraction.weather_points),
+        selectinload(Attraction.experience_tags),
+    )
 
 
 def find_attraction(session: Session, query: str) -> Attraction | None:
@@ -13,23 +60,50 @@ def find_attraction(session: Session, query: str) -> Attraction | None:
     if not normalized_query:
         raise ValueError("景点查询不能为空")
 
-    statement = (
+    identity_statement = _with_children(
         select(Attraction)
         .outerjoin(AttractionAlias)
         .where(
             or_(
                 func.lower(Attraction.id) == normalized_query,
-                func.lower(Attraction.name) == normalized_query,
                 func.lower(AttractionAlias.alias) == normalized_query,
             )
         )
-        .options(
-            selectinload(Attraction.aliases),
-            selectinload(Attraction.weather_points),
-            selectinload(Attraction.experience_tags),
+    )
+    identity_match = (
+        session.scalars(identity_statement).unique().one_or_none()
+    )
+    if identity_match is not None:
+        return identity_match
+
+    name_statement = _with_children(
+        select(Attraction)
+        .where(func.lower(Attraction.name) == normalized_query)
+        .order_by(
+            Attraction.province,
+            Attraction.city,
+            Attraction.district,
+            Attraction.id,
         )
     )
-    return session.scalars(statement).unique().one_or_none()
+    name_matches = list(session.scalars(name_statement).unique())
+    if not name_matches:
+        return None
+    if len(name_matches) == 1:
+        return name_matches[0]
+    raise AmbiguousAttractionError(
+        query,
+        [
+            {
+                "id": attraction.id,
+                "name": attraction.name,
+                "province": attraction.province,
+                "city": attraction.city,
+                "district": attraction.district,
+            }
+            for attraction in name_matches
+        ],
+    )
 
 
 def attraction_to_payload(attraction: Attraction) -> dict[str, Any]:
@@ -52,6 +126,7 @@ def attraction_to_payload(attraction: Attraction) -> dict[str, Any]:
         "aliases": [alias.alias for alias in aliases],
         "coverage": attraction.coverage,
         "weather_notice": attraction.weather_notice,
+        "classification_status": attraction.classification_status,
         "experience_tags": [
             {
                 "id": tag.tag,
@@ -74,9 +149,49 @@ def attraction_to_payload(attraction: Attraction) -> dict[str, Any]:
 
 
 def load_attraction(query: str) -> dict[str, Any]:
-    """从数据库读取一条可直接用于评分的景点数据。"""
+    """优先从 Redis 读取景点，未命中时回源 MySQL。"""
+    cache_available = True
+
+    try:
+        cached_result = attraction_cache.get(query)
+    except RedisError as error:
+        cache_available = False
+        cached_result = None
+        logger.warning("读取景点缓存失败，将回退 MySQL：%s", error)
+
+    if cached_result is not None:
+        if cached_result["status"] == "not_found":
+            raise ValueError(f"找不到景点：{query}")
+
+        return cached_result["attraction"]
+
     with SessionLocal() as session:
         attraction = find_attraction(session, query)
+
         if attraction is None:
+            if cache_available:
+                try:
+                    attraction_cache.set_not_found(
+                        query,
+                        ttl_seconds=(
+                            ATTRACTION_NOT_FOUND_CACHE_TTL_SECONDS
+                        ),
+                    )
+                except RedisError as error:
+                    logger.warning("写入景点负缓存失败：%s", error)
+
             raise ValueError(f"找不到景点：{query}")
-        return attraction_to_payload(attraction)
+
+        payload = attraction_to_payload(attraction)
+
+    if cache_available:
+        try:
+            attraction_cache.set_found(
+                query,
+                payload,
+                ttl_seconds=ATTRACTION_CACHE_TTL_SECONDS,
+            )
+        except RedisError as error:
+            logger.warning("写入景点缓存失败：%s", error)
+
+    return payload

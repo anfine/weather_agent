@@ -10,6 +10,7 @@ os.environ.setdefault("DEEPSEEK_API_KEY", "test-key")
 
 import main
 import scoring
+from repositories.attraction import AmbiguousAttractionError
 
 
 class WeatherToolTests(unittest.TestCase):
@@ -246,6 +247,44 @@ class WeatherToolTests(unittest.TestCase):
 
         self.assertEqual(result["status"], "not_found")
         self.assertEqual(result["requested_place"], "不存在的测试景点")
+        weather_tool.invoke.assert_not_called()
+
+    @patch("main.get_weather")
+    @patch("main.load_attraction")
+    def test_same_name_attraction_returns_candidates_without_weather(
+        self,
+        attraction_loader: Mock,
+        weather_tool: Mock,
+    ) -> None:
+        attraction_loader.side_effect = AmbiguousAttractionError(
+            "中山公园",
+            [
+                {
+                    "id": "beijing",
+                    "name": "中山公园",
+                    "province": "北京",
+                    "city": "北京市",
+                    "district": "东城区",
+                },
+                {
+                    "id": "shanghai",
+                    "name": "中山公园",
+                    "province": "上海",
+                    "city": "上海市",
+                    "district": "长宁区",
+                },
+            ],
+        )
+
+        result = main.evaluate_attraction.invoke(
+            {
+                "attraction_name": "中山公园",
+                "target_date": (date.today() + timedelta(days=1)).isoformat(),
+            }
+        )
+
+        self.assertEqual(result["status"], "ambiguous")
+        self.assertEqual(len(result["candidates"]), 2)
         weather_tool.invoke.assert_not_called()
 
     def test_not_found_tool_message_requires_city_follow_up(self) -> None:

@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     Double,
     Float,
     ForeignKey,
+    Integer,
     String,
     Text,
     false,
@@ -23,9 +25,30 @@ class Attraction(Base):
     """可按正式名称或别名查询的景点。"""
 
     __tablename__ = "attractions"
+    __table_args__ = (
+        CheckConstraint(
+            "classification_status IN ('pending', 'classified')",
+            name="ck_attractions_classification_status",
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    name: Mapped[str] = mapped_column(String(128), unique=True)
+    name: Mapped[str] = mapped_column(String(128), index=True)
+    grade: Mapped[str | None] = mapped_column(String(8))
+    province: Mapped[str | None] = mapped_column(String(32), index=True)
+    city: Mapped[str | None] = mapped_column(String(64), index=True)
+    district: Mapped[str | None] = mapped_column(String(64))
+    address: Mapped[str | None] = mapped_column(String(512))
+    grade_assessed_at: Mapped[date | None] = mapped_column(Date)
+    source_published_at: Mapped[date | None] = mapped_column(Date)
+    source_note: Mapped[str | None] = mapped_column(Text)
+    source_file: Mapped[str | None] = mapped_column(String(255))
+    source_row: Mapped[int | None] = mapped_column(Integer)
+    classification_status: Mapped[str] = mapped_column(
+        String(32),
+        default="classified",
+        server_default="classified",
+    )
     coverage: Mapped[str] = mapped_column(String(32))
     weather_notice: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(

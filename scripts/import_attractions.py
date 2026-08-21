@@ -1,202 +1,118 @@
 #!/usr/bin/env python3
-"""把手工整理的百度坐标景点表转换为待审核的天气地点数据。"""
+"""读取全国景区 Excel，并幂等同步到 MySQL。"""
 
 import argparse
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import date, timedelta
+import hashlib
 import json
-import math
-import re
-import zipfile
-from collections import Counter
 from pathlib import Path
+import re
+import sys
 from typing import Any
+import unicodedata
+import zipfile
 from xml.etree import ElementTree
 
-import requests
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = PROJECT_ROOT / "data" / "54个景点.xlsx"
-DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "attractions_candidates.json"
-ELEVATION_API = "https://api.open-meteo.com/v1/elevation"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
+
+from database import session_scope
+from models import Attraction, AttractionExperienceTag, WeatherPoint
+from attraction_cache import AttractionCache
+from redis_client import redis_client
+
+attraction_cache = AttractionCache(redis_client)
+
+DEFAULT_INPUT = PROJECT_ROOT / "data" / "01-23年全国景区数据.xlsx"
+SOURCE_NAME = "01-23年全国景区数据.xlsx"
 XML_NAMESPACE = {
     "x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 }
-
-NAME_FIXES = {
-    "神农架-": "神农架",
-    "沪沽湖": "泸沽湖",
+EXPECTED_COLUMNS = {
+    "A": ("name", "景区名称"),
+    "B": ("grade", "等级"),
+    "C": ("province", "所属省份"),
+    "D": ("city", "所属城市"),
+    "E": ("district", "所属区县"),
+    "F": ("address", "地址"),
+    "G": ("grade_assessed_at", "当前等级评定时间"),
+    "H": ("source_note", "相关文件发布时间"),
+    "I": ("gcj02_longitude", "坐标(GCJ02)Lng"),
+    "J": ("gcj02_latitude", "坐标(GCJ02)Lat"),
+    "K": ("bd09_longitude", "坐标(BD09)Lng"),
+    "L": ("bd09_latitude", "坐标(BD09)Lat"),
+    "M": ("longitude", "坐标(WGS84)Lng"),
+    "N": ("latitude", "坐标(WGS84)Lat"),
 }
+GENERIC_WEATHER_NOTICE = (
+    "该景点尚未完成活动分类，当前仅提供通用户外天气评价。"
+)
 
-# 这两个山峰已有比原始两位小数百度坐标更可靠的代表点。
-MANUAL_OVERRIDES = {
-    "华山": {
-        "longitude": 110.077847,
-        "latitude": 34.477799,
-        "elevation_m": 2154.9,
-        "point_type": "summit",
-        "coordinate_source": "manual_override",
-        "elevation_source": "official_survey",
-        "source_url": "https://jst.sc.gov.cn/scjst/tonggao/2009/1/19/d80b2f6b24164ecf99c98682005eddde.shtml",
-    },
-    "黄山": {
-        "longitude": 118.183333,
-        "latitude": 30.166667,
-        "elevation_m": 1864.8,
-        "point_type": "summit",
-        "coordinate_source": "manual_override",
-        "elevation_source": "official_peak_elevation",
-        "source_url": "https://whc.unesco.org/document/162545",
-    },
-}
 
-CITY_NAMES = {
-    "西安",
-    "南京",
-    "北京",
-    "苏州",
-    "大理",
-    "澳门",
-    "丽江",
-    "腾冲",
-    "喀什",
-    "日喀则",
-    "绍兴",
-    "香格里拉",
-    "塔什库尔干",
-    "丹巴",
-    "林芝",
-    "阳朔",
-    "德格",
-    "都江堰",
-    "拉萨",
-    "敦煌",
-}
+@dataclass(frozen=True)
+class AttractionSource:
+    """一条经过清洗、可用于同步的全国景区记录。"""
 
-REGION_NAMES = {
-    "伊犁",
-    "徽州",
-    "阿里",
-    "三江源",
-    "怒江",
-    "黔东南",
-    "甘南",
-    "山南",
-    "三峡",
-}
+    id: str
+    business_key: str
+    name: str
+    grade: str | None
+    province: str
+    city: str | None
+    district: str | None
+    address: str
+    grade_assessed_at: date | None
+    source_published_at: date | None
+    source_note: str | None
+    longitude: float
+    latitude: float
+    source_file: str
+    source_row: int
 
-HIKING_NAMES = {
-    "喀纳斯",
-    "海螺沟",
-    "三江源",
-    "雅鲁藏布江大峡谷",
-    "怒江",
-    "神农架",
-    "香格里拉",
-    "塔什库尔干",
-    "丹巴",
-    "林芝",
-    "稻城亚丁",
-    "蜀南竹海",
-    "甘南",
-    "山南",
-    "九寨沟",
-    "长白山",
-    "华山",
-    "黄山",
-    "四姑娘山",
-}
 
-SCENIC_NAMES = {
-    "喀纳斯",
-    "塔克拉玛干沙漠",
-    "海螺沟",
-    "三江源",
-    "雅鲁藏布江大峡谷",
-    "怒江",
-    "德天瀑布",
-    "神农架",
-    "壶口瀑布",
-    "香格里拉",
-    "塔什库尔干",
-    "丹巴",
-    "林芝",
-    "稻城亚丁",
-    "蜀南竹海",
-    "阳朔",
-    "甘南",
-    "婺源",
-    "山南",
-    "九寨沟",
-    "青海湖",
-    "辉腾锡勒草原",
-    "长白山",
-    "泸沽湖",
-    "华山",
-    "黄山",
-    "四姑娘山",
-    "三峡",
-    "亚龙湾",
-    "西湖",
-    "凤凰古城",
-    "黄姚",
-}
+def normalize_business_text(value: str) -> str:
+    """标准化参与业务键的文本。"""
+    normalized = unicodedata.normalize("NFKC", value)
+    return "".join(normalized.split()).casefold()
 
-TERRAIN_SENSITIVE_NAMES = {
-    "阿里",
-    "喀纳斯",
-    "海螺沟",
-    "三江源",
-    "雅鲁藏布江大峡谷",
-    "怒江",
-    "神农架",
-    "香格里拉",
-    "塔什库尔干",
-    "丹巴",
-    "林芝",
-    "稻城亚丁",
-    "甘南",
-    "山南",
-    "九寨沟",
-    "长白山",
-    "华山",
-    "黄山",
-    "四姑娘山",
-    "三峡",
-}
 
-DESCRIPTOR_TAGS = {
-    "塔克拉玛干沙漠": ["desert"],
-    "海螺沟": ["mountain", "glacier"],
-    "三江源": ["plateau", "wetland"],
-    "雅鲁藏布江大峡谷": ["canyon", "river"],
-    "怒江": ["river", "canyon"],
-    "德天瀑布": ["waterfall"],
-    "神农架": ["mountain", "forest"],
-    "壶口瀑布": ["waterfall", "river"],
-    "西湖": ["lake", "culture"],
-    "稻城亚丁": ["mountain", "plateau"],
-    "蜀南竹海": ["forest"],
-    "九寨沟": ["mountain", "lake"],
-    "青海湖": ["lake", "plateau"],
-    "辉腾锡勒草原": ["grassland"],
-    "长白山": ["mountain"],
-    "泸沽湖": ["lake"],
-    "华山": ["mountain"],
-    "黄山": ["mountain"],
-    "四姑娘山": ["mountain"],
-    "三峡": ["river", "canyon"],
-    "亚龙湾": ["beach"],
-    "凤凰古城": ["culture", "ancient_town"],
-    "曲阜三孔": ["culture", "architecture"],
-    "黄姚": ["culture", "ancient_town"],
-    "西夏王陵": ["culture", "heritage"],
-    "云冈石窟": ["culture", "heritage"],
-}
+def build_attraction_business_key(
+    *,
+    province: str,
+    name: str,
+    address: str,
+) -> str:
+    """生成不受等级和行政区补全影响的业务唯一键。"""
+    values = [
+        normalize_business_text(province),
+        normalize_business_text(name),
+        normalize_business_text(address),
+    ]
+    if any(not value for value in values):
+        raise ValueError("景点省份、名称和地址不能为空")
+    return json.dumps(values, ensure_ascii=False, separators=(",", ":"))
 
-X_PI = math.pi * 3000.0 / 180.0
-PI = math.pi
-EARTH_AXIS = 6378245.0
-ECCENTRICITY_SQUARED = 0.00669342162296594323
+
+def build_attraction_id(
+    *,
+    province: str,
+    name: str,
+    address: str,
+) -> str:
+    """根据业务键确定性生成稳定景点 ID。"""
+    business_key = build_attraction_business_key(
+        province=province,
+        name=name,
+        address=address,
+    )
+    digest = hashlib.sha256(business_key.encode("utf-8")).hexdigest()[:24]
+    return f"cn-scenic-{digest}"
 
 
 def _column_name(cell_reference: str) -> str:
@@ -206,345 +122,463 @@ def _column_name(cell_reference: str) -> str:
     return match.group(0)
 
 
-def read_xlsx_rows(path: str | Path) -> list[dict[str, str]]:
-    """只用标准库读取当前两列表格。"""
-    with zipfile.ZipFile(path) as archive:
-        shared_root = ElementTree.fromstring(
-            archive.read("xl/sharedStrings.xml")
+def _shared_strings(archive: zipfile.ZipFile) -> list[str]:
+    if "xl/sharedStrings.xml" not in archive.namelist():
+        return []
+    root = ElementTree.fromstring(archive.read("xl/sharedStrings.xml"))
+    return [
+        "".join(
+            node.text or ""
+            for node in item.iterfind(".//x:t", XML_NAMESPACE)
         )
-        shared_strings = [
-            "".join(
-                text.text or ""
-                for text in item.findall(".//x:t", XML_NAMESPACE)
-            )
-            for item in shared_root.findall("x:si", XML_NAMESPACE)
-        ]
+        for item in root.findall("x:si", XML_NAMESPACE)
+    ]
+
+
+def _cell_text(cell, shared_strings: list[str]) -> str:
+    if cell.get("t") == "inlineStr":
+        return "".join(
+            node.text or ""
+            for node in cell.iterfind(".//x:t", XML_NAMESPACE)
+        )
+    value_node = cell.find("x:v", XML_NAMESPACE)
+    if value_node is None or value_node.text is None:
+        return ""
+    value = value_node.text
+    if cell.get("t") == "s":
+        return shared_strings[int(value)]
+    return value
+
+
+def read_xlsx_rows(path: str | Path = DEFAULT_INPUT) -> list[dict[str, str]]:
+    """使用标准库读取全国景区表的 14 个业务列。"""
+    with zipfile.ZipFile(path) as archive:
+        shared_strings = _shared_strings(archive)
         sheet_root = ElementTree.fromstring(
             archive.read("xl/worksheets/sheet1.xml")
         )
 
-    rows: list[dict[str, str]] = []
-    for row in sheet_root.findall(
+    raw_rows: list[dict[str, str]] = []
+    for row_node in sheet_root.findall(
         ".//x:sheetData/x:row",
         XML_NAMESPACE,
     ):
         values: dict[str, str] = {}
-        for cell in row.findall("x:c", XML_NAMESPACE):
-            value_node = cell.find("x:v", XML_NAMESPACE)
-            if value_node is None or value_node.text is None:
-                continue
-            value = value_node.text
-            if cell.get("t") == "s":
-                value = shared_strings[int(value)]
-            values[_column_name(cell.attrib["r"])] = value
+        for cell in row_node.findall("x:c", XML_NAMESPACE):
+            column = _column_name(cell.attrib["r"])
+            if column in EXPECTED_COLUMNS:
+                values[column] = _cell_text(cell, shared_strings).strip()
         if values:
-            rows.append(values)
+            values["row_number"] = row_node.attrib["r"]
+            raw_rows.append(values)
 
-    if not rows or rows[0].get("A") != "city" or rows[0].get("B") != "lon,lat":
-        raise ValueError("表格表头必须是 city 和 lon,lat")
+    if not raw_rows:
+        raise ValueError("全国景区表为空")
 
-    parsed_rows: list[dict[str, str]] = []
-    for row_number, row in enumerate(rows[1:], start=2):
-        if "A" not in row or "B" not in row:
-            raise ValueError(f"第 {row_number} 行缺少名称或坐标")
-        parsed_rows.append(
-            {
-                "row_number": str(row_number),
-                "name": row["A"].strip(),
-                "coordinate": row["B"].strip(),
-            }
-        )
-    return parsed_rows
+    header = raw_rows[0]
+    for column, (_, expected_header) in EXPECTED_COLUMNS.items():
+        if header.get(column) != expected_header:
+            raise ValueError(
+                f"第 {column} 列表头应为 {expected_header}，"
+                f"实际为 {header.get(column)!r}"
+            )
 
-
-def bd09_to_gcj02(longitude: float, latitude: float) -> tuple[float, float]:
-    x = longitude - 0.0065
-    y = latitude - 0.006
-    z = math.sqrt(x * x + y * y) - 0.00002 * math.sin(y * X_PI)
-    theta = math.atan2(y, x) - 0.000003 * math.cos(x * X_PI)
-    return z * math.cos(theta), z * math.sin(theta)
-
-
-def _transform_latitude(longitude: float, latitude: float) -> float:
-    result = (
-        -100.0
-        + 2.0 * longitude
-        + 3.0 * latitude
-        + 0.2 * latitude * latitude
-        + 0.1 * longitude * latitude
-        + 0.2 * math.sqrt(abs(longitude))
-    )
-    result += (
-        20.0 * math.sin(6.0 * longitude * PI)
-        + 20.0 * math.sin(2.0 * longitude * PI)
-    ) * 2.0 / 3.0
-    result += (
-        20.0 * math.sin(latitude * PI)
-        + 40.0 * math.sin(latitude / 3.0 * PI)
-    ) * 2.0 / 3.0
-    result += (
-        160.0 * math.sin(latitude / 12.0 * PI)
-        + 320 * math.sin(latitude * PI / 30.0)
-    ) * 2.0 / 3.0
-    return result
-
-
-def _transform_longitude(longitude: float, latitude: float) -> float:
-    result = (
-        300.0
-        + longitude
-        + 2.0 * latitude
-        + 0.1 * longitude * longitude
-        + 0.1 * longitude * latitude
-        + 0.1 * math.sqrt(abs(longitude))
-    )
-    result += (
-        20.0 * math.sin(6.0 * longitude * PI)
-        + 20.0 * math.sin(2.0 * longitude * PI)
-    ) * 2.0 / 3.0
-    result += (
-        20.0 * math.sin(longitude * PI)
-        + 40.0 * math.sin(longitude / 3.0 * PI)
-    ) * 2.0 / 3.0
-    result += (
-        150.0 * math.sin(longitude / 12.0 * PI)
-        + 300.0 * math.sin(longitude / 30.0 * PI)
-    ) * 2.0 / 3.0
-    return result
-
-
-def wgs84_to_gcj02(longitude: float, latitude: float) -> tuple[float, float]:
-    relative_longitude = longitude - 105.0
-    relative_latitude = latitude - 35.0
-    delta_latitude = _transform_latitude(
-        relative_longitude,
-        relative_latitude,
-    )
-    delta_longitude = _transform_longitude(
-        relative_longitude,
-        relative_latitude,
-    )
-    radian_latitude = latitude / 180.0 * PI
-    magic = math.sin(radian_latitude)
-    magic = 1 - ECCENTRICITY_SQUARED * magic * magic
-    sqrt_magic = math.sqrt(magic)
-    delta_latitude = (
-        delta_latitude * 180.0
-    ) / ((EARTH_AXIS * (1 - ECCENTRICITY_SQUARED)) / (magic * sqrt_magic) * PI)
-    delta_longitude = (
-        delta_longitude * 180.0
-    ) / (EARTH_AXIS / sqrt_magic * math.cos(radian_latitude) * PI)
-    return longitude + delta_longitude, latitude + delta_latitude
-
-
-def gcj02_to_wgs84(longitude: float, latitude: float) -> tuple[float, float]:
-    """迭代求 GCJ-02 的近似逆变换。"""
-    result_longitude = longitude
-    result_latitude = latitude
-    for _ in range(30):
-        converted_longitude, converted_latitude = wgs84_to_gcj02(
-            result_longitude,
-            result_latitude,
-        )
-        longitude_error = longitude - converted_longitude
-        latitude_error = latitude - converted_latitude
-        result_longitude += longitude_error
-        result_latitude += latitude_error
-        if max(abs(longitude_error), abs(latitude_error)) < 1e-7:
-            break
-    return result_longitude, result_latitude
-
-
-def bd09_to_wgs84(longitude: float, latitude: float) -> tuple[float, float]:
-    gcj_longitude, gcj_latitude = bd09_to_gcj02(longitude, latitude)
-    return gcj02_to_wgs84(gcj_longitude, gcj_latitude)
-
-
-def _parse_coordinate(value: str) -> tuple[float, float]:
-    try:
-        raw_longitude, raw_latitude = value.split(",", maxsplit=1)
-        longitude = float(raw_longitude)
-        latitude = float(raw_latitude)
-    except (TypeError, ValueError) as error:
-        raise ValueError(f"无效坐标：{value}") from error
-    if not -180 <= longitude <= 180 or not -90 <= latitude <= 90:
-        raise ValueError(f"坐标超出范围：{value}")
-    return longitude, latitude
-
-
-def _kind_for(name: str) -> str:
-    if name in CITY_NAMES:
-        return "city"
-    if name in REGION_NAMES:
-        return "region"
-    return "attraction"
-
-
-def _tags_for(name: str, kind: str) -> list[str]:
-    tags = list(DESCRIPTOR_TAGS.get(name, []))
-    if name in SCENIC_NAMES:
-        tags.append("scenic_view")
-    if name in HIKING_NAMES:
-        tags.append("hiking")
-    tags.append("outdoor_visit")
-    if kind in {"city", "region"} and "culture" not in tags:
-        tags.append("culture")
-    return list(dict.fromkeys(tags))
-
-
-def build_candidates(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
-    raw_coordinate_counts = Counter(row["coordinate"] for row in rows)
-    candidates: list[dict[str, Any]] = []
-
-    for index, row in enumerate(rows, start=1):
-        original_name = row["name"]
-        name = NAME_FIXES.get(original_name, original_name)
-        raw_longitude, raw_latitude = _parse_coordinate(row["coordinate"])
-        converted_longitude, converted_latitude = bd09_to_wgs84(
-            raw_longitude,
-            raw_latitude,
-        )
-        kind = _kind_for(name)
-        issues: list[str] = []
-        if original_name != name:
-            issues.append(f"名称已规范化：{original_name} -> {name}")
-        if raw_coordinate_counts[row["coordinate"]] > 1:
-            issues.append(f"原始坐标与其他条目重复：{row['coordinate']}")
-
-        candidate: dict[str, Any] = {
-            "id": f"cn-destination-{index:03d}",
-            "name": name,
-            "aliases": [original_name] if original_name != name else [],
-            "kind": kind,
-            "longitude": round(converted_longitude, 6),
-            "latitude": round(converted_latitude, 6),
-            "coordinate_system": "WGS84_APPROX",
-            "coordinate_source": "baidu_bd09_offline_conversion",
-            "coordinate_accuracy_m": 1000,
-            "point_type": "centroid",
-            "elevation_m": None,
-            "elevation_source": None,
-            "tags": _tags_for(name, kind),
-            "review_status": (
-                "needs_review"
-                if name in TERRAIN_SENSITIVE_NAMES
-                else "automatic"
-            ),
-            "raw_source": {
-                "file": DEFAULT_INPUT.name,
-                "row": int(row["row_number"]),
-                "longitude": raw_longitude,
-                "latitude": raw_latitude,
-                "coordinate_system": "BD09",
-            },
-            "issues": issues,
+    rows: list[dict[str, str]] = []
+    for raw_row in raw_rows[1:]:
+        row = {
+            field: raw_row.get(column, "").strip()
+            for column, (field, _) in EXPECTED_COLUMNS.items()
         }
-
-        override = MANUAL_OVERRIDES.get(name)
-        if override:
-            candidate.update(override)
-            candidate["coordinate_system"] = "WGS84"
-            candidate["coordinate_accuracy_m"] = None
-            candidate["review_status"] = "reviewed"
-            candidate["issues"].append("已使用人工核验的代表峰覆盖原始坐标")
-        candidates.append(candidate)
-
-    return candidates
+        row["row_number"] = raw_row["row_number"]
+        if any(row[field] for field, _ in EXPECTED_COLUMNS.values()):
+            rows.append(row)
+    return rows
 
 
-def enrich_elevations(candidates: list[dict[str, Any]]) -> None:
-    pending = [
-        candidate
-        for candidate in candidates
-        if candidate["elevation_m"] is None
-    ]
-    for offset in range(0, len(pending), 100):
-        batch = pending[offset : offset + 100]
-        response = requests.get(
-            ELEVATION_API,
-            params={
-                "latitude": ",".join(str(item["latitude"]) for item in batch),
-                "longitude": ",".join(str(item["longitude"]) for item in batch),
-            },
-            timeout=30,
-        )
-        response.raise_for_status()
-        elevations = response.json().get("elevation")
-        if not isinstance(elevations, list) or len(elevations) != len(batch):
-            raise ValueError("Open-Meteo 返回的海拔数量与请求坐标数量不一致")
-        for candidate, elevation in zip(batch, elevations):
-            candidate["elevation_m"] = elevation
-            candidate["elevation_source"] = "open_meteo_copernicus_dem_90m"
+def _required_text(row: dict[str, str], field: str) -> str:
+    value = row.get(field, "").strip()
+    if not value or value == "-":
+        raise ValueError(f"{field} 不能为空")
+    return value
 
 
-def import_attractions(
-    input_path: str | Path,
-    output_path: str | Path,
-    query_elevation: bool = True,
-) -> dict[str, Any]:
-    rows = read_xlsx_rows(input_path)
-    candidates = build_candidates(rows)
-    if query_elevation:
-        enrich_elevations(candidates)
+def _optional_text(value: str) -> str | None:
+    cleaned = value.strip()
+    return None if not cleaned or cleaned == "-" else cleaned
 
-    payload = {
-        "schema_version": "1.0",
-        "status": "candidate_dataset",
-        "coordinate_conversion": {
-            "source": "BD09",
-            "target": "WGS84_APPROX",
-            "method": "offline_approximation",
-            "note": (
-                "原始坐标仅保留两位小数，转换结果仍按约 1 公里定位精度处理。"
-                "地形敏感地点必须人工复核。"
-            ),
-        },
-        "elevation": {
-            "automatic_source": "Open-Meteo Elevation API / Copernicus DEM 90m",
-            "api": ELEVATION_API,
-        },
-        "summary": {
-            "total": len(candidates),
-            "reviewed": sum(
-                item["review_status"] == "reviewed" for item in candidates
-            ),
-            "needs_review": sum(
-                item["review_status"] == "needs_review" for item in candidates
-            ),
-            "automatic": sum(
-                item["review_status"] == "automatic" for item in candidates
-            ),
-        },
-        "destinations": candidates,
+
+def _coordinate(
+    row: dict[str, str],
+    field: str,
+    minimum: float,
+    maximum: float,
+) -> float:
+    try:
+        value = float(row.get(field, ""))
+    except ValueError as error:
+        raise ValueError(f"{field} 必须是数字") from error
+    if not minimum <= value <= maximum:
+        raise ValueError(f"{field} 超出范围")
+    return value
+
+
+def _parse_date(value: str) -> date | None:
+    cleaned = value.strip()
+    if not cleaned or cleaned == "-":
+        return None
+    if re.fullmatch(r"\d+(?:\.\d+)?", cleaned):
+        return date(1899, 12, 30) + timedelta(days=int(float(cleaned)))
+    match = re.search(
+        r"(?P<year>\d{4})[-年/.](?P<month>\d{1,2})"
+        r"(?:[-月/.](?P<day>\d{1,2}))?",
+        cleaned,
+    )
+    if not match:
+        return None
+    return date(
+        int(match.group("year")),
+        int(match.group("month")),
+        int(match.group("day") or 1),
+    )
+
+
+def parse_attraction_source(
+    row: dict[str, str],
+    *,
+    source_file: str = SOURCE_NAME,
+) -> AttractionSource:
+    """把一行 Excel 文本解析成经过校验的景区记录。"""
+    name = _required_text(row, "name")
+    province = _required_text(row, "province")
+    address = _required_text(row, "address")
+    grade = _optional_text(row.get("grade", ""))
+    if grade is not None and not re.fullmatch(r"[1-5]A", grade):
+        raise ValueError(f"grade 格式无效：{grade}")
+    business_key = build_attraction_business_key(
+        province=province,
+        name=name,
+        address=address,
+    )
+    source_note = _optional_text(row.get("source_note", ""))
+    return AttractionSource(
+        id=build_attraction_id(
+            province=province,
+            name=name,
+            address=address,
+        ),
+        business_key=business_key,
+        name=name,
+        grade=grade,
+        province=province,
+        city=_optional_text(row.get("city", "")),
+        district=_optional_text(row.get("district", "")),
+        address=address,
+        grade_assessed_at=_parse_date(row.get("grade_assessed_at", "")),
+        source_published_at=_parse_date(source_note or ""),
+        source_note=source_note,
+        longitude=_coordinate(row, "longitude", -180, 180),
+        latitude=_coordinate(row, "latitude", -90, 90),
+        source_file=source_file,
+        source_row=int(row["row_number"]),
+    )
+
+
+def _content_signature(source: AttractionSource) -> tuple[Any, ...]:
+    return (
+        source.name,
+        source.grade,
+        source.province,
+        source.city,
+        source.district,
+        source.address,
+        source.grade_assessed_at,
+        source.source_published_at,
+        source.source_note,
+        source.longitude,
+        source.latitude,
+    )
+
+
+def _newness(source: AttractionSource) -> tuple[date, date, int, int]:
+    grade_rank = int(source.grade[0]) if source.grade else 0
+    return (
+        source.grade_assessed_at or date.min,
+        source.source_published_at or date.min,
+        grade_rank,
+        source.source_row,
+    )
+
+
+def load_nationwide_sources(
+    path: str | Path = DEFAULT_INPUT,
+) -> tuple[list[AttractionSource], dict[str, Any]]:
+    """读取、校验并按业务键合并全国景区记录。"""
+    rows = read_xlsx_rows(path)
+    valid: list[AttractionSource] = []
+    invalid_rows: list[dict[str, Any]] = []
+    for row in rows:
+        try:
+            valid.append(
+                parse_attraction_source(
+                    row,
+                    source_file=Path(path).name,
+                )
+            )
+        except (TypeError, ValueError) as error:
+            invalid_rows.append(
+                {
+                    "row": int(row["row_number"]),
+                    "reason": str(error),
+                }
+            )
+
+    grouped: dict[str, list[AttractionSource]] = defaultdict(list)
+    for source in valid:
+        grouped[source.business_key].append(source)
+
+    selected: list[AttractionSource] = []
+    conflicts: list[dict[str, Any]] = []
+    duplicate_rows = 0
+    for sources in grouped.values():
+        chosen = max(sources, key=_newness)
+        selected.append(chosen)
+        if len(sources) == 1:
+            continue
+        duplicate_rows += len(sources) - 1
+        signatures = {_content_signature(source) for source in sources}
+        if len(signatures) > 1:
+            conflicts.append(
+                {
+                    "business_key": chosen.business_key,
+                    "name": chosen.name,
+                    "rows": sorted(source.source_row for source in sources),
+                    "selected_row": chosen.source_row,
+                }
+            )
+
+    selected.sort(key=lambda source: source.id)
+    if len({source.id for source in selected}) != len(selected):
+        raise ValueError("景点 ID 摘要发生碰撞")
+
+    return selected, {
+        "raw_rows": len(rows),
+        "valid_rows": len(valid),
+        "business_keys": len(selected),
+        "duplicate_rows": duplicate_rows,
+        "conflict_groups": len(conflicts),
+        "invalid_rows": invalid_rows,
+        "conflicts": conflicts,
     }
 
-    destination = Path(output_path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with destination.open("w", encoding="utf-8") as file:
-        json.dump(payload, file, ensure_ascii=False, indent=2)
-        file.write("\n")
-    return payload
+
+def _load_existing(
+    session: Session,
+    sources: list[AttractionSource],
+) -> tuple[
+    dict[str, Attraction],
+    dict[str, Attraction],
+    dict[str, list[Attraction]],
+]:
+    options = (
+        selectinload(Attraction.weather_points),
+        selectinload(Attraction.experience_tags),
+    )
+    dataset_statement = (
+        select(Attraction)
+        .where(Attraction.source_file == SOURCE_NAME)
+        .options(*options)
+    )
+    dataset_attractions = list(session.scalars(dataset_statement))
+    by_business_key = {
+        build_attraction_business_key(
+            province=attraction.province or "",
+            name=attraction.name,
+            address=attraction.address or "",
+        ): attraction
+        for attraction in dataset_attractions
+        if attraction.province and attraction.address
+    }
+
+    source_ids = [
+        source.id
+        for source in sources
+        if source.business_key not in by_business_key
+    ]
+    by_id = {attraction.id: attraction for attraction in dataset_attractions}
+    batch_size = 1000
+    for offset in range(0, len(source_ids), batch_size):
+        batch = source_ids[offset : offset + batch_size]
+        statement = (
+            select(Attraction)
+            .where(Attraction.id.in_(batch))
+            .options(*options)
+        )
+        by_id.update(
+            {
+                attraction.id: attraction
+                for attraction in session.scalars(statement)
+            }
+        )
+
+    legacy_statement = (
+        select(Attraction)
+        .where(Attraction.source_file.is_(None))
+        .options(*options)
+    )
+    legacy_by_name: dict[str, list[Attraction]] = defaultdict(list)
+    for attraction in session.scalars(legacy_statement):
+        legacy_by_name[attraction.name].append(attraction)
+    return by_id, by_business_key, legacy_by_name
+
+
+def _set_if_changed(
+    attraction: Attraction,
+    field: str,
+    value: Any,
+) -> bool:
+    if getattr(attraction, field) == value:
+        return False
+    setattr(attraction, field, value)
+    return True
+
+
+def _apply_source(attraction: Attraction, source: AttractionSource) -> bool:
+    changed = False
+    values = {
+        "name": source.name,
+        "grade": source.grade,
+        "province": source.province,
+        "city": source.city,
+        "district": source.district,
+        "address": source.address,
+        "grade_assessed_at": source.grade_assessed_at,
+        "source_published_at": source.source_published_at,
+        "source_note": source.source_note,
+        "source_file": source.source_file,
+        "source_row": source.source_row,
+    }
+    is_classified = attraction.classification_status == "classified"
+    if not is_classified:
+        values.update(
+            {
+                "classification_status": "pending",
+                "coverage": "representative_point",
+                "weather_notice": GENERIC_WEATHER_NOTICE,
+            }
+        )
+    for field, value in values.items():
+        changed |= _set_if_changed(attraction, field, value)
+
+    if is_classified:
+        return changed
+
+    default_points = [
+        point for point in attraction.weather_points if point.is_default
+    ]
+    if len(default_points) > 1:
+        raise ValueError(f"景点 {source.name} 存在多个默认天气点")
+    if default_points:
+        point = default_points[0]
+    else:
+        point = WeatherPoint(is_default=True)
+        attraction.weather_points.append(point)
+        changed = True
+    point_values = {
+        "name": f"{source.name}默认天气点",
+        "longitude": source.longitude,
+        "latitude": source.latitude,
+        "elevation_m": None,
+    }
+    for field, value in point_values.items():
+        if getattr(point, field) != value:
+            setattr(point, field, value)
+            changed = True
+
+    if not attraction.experience_tags:
+        attraction.experience_tags.append(
+            AttractionExperienceTag(
+                tag="outdoor_visit",
+                importance=3.0,
+            )
+        )
+        changed = True
+    return changed
+
+
+def sync_nationwide_attractions(
+    session: Session,
+    sources: list[AttractionSource],
+) -> dict[str, int]:
+    """在调用方事务内批量创建或更新全国景区。"""
+    by_id, by_business_key, legacy_by_name = _load_existing(session, sources)
+    created = 0
+    updated = 0
+    skipped = 0
+    merged_legacy = 0
+    for source in sources:
+        attraction = by_business_key.get(source.business_key)
+        if attraction is None:
+            attraction = by_id.get(source.id)
+        if attraction is None:
+            legacy_matches = legacy_by_name.get(source.name, [])
+            if len(legacy_matches) == 1:
+                attraction = legacy_matches[0]
+                merged_legacy += 1
+        if attraction is None:
+            attraction = Attraction(
+                id=source.id,
+                name=source.name,
+                classification_status="pending",
+                coverage="representative_point",
+            )
+            session.add(attraction)
+            created += 1
+            _apply_source(attraction, source)
+        elif _apply_source(attraction, source):
+            updated += 1
+        else:
+            skipped += 1
+    return {
+        "created": created,
+        "updated": updated,
+        "skipped": skipped,
+        "merged_legacy": merged_legacy,
+    }
+
+
+def import_nationwide_attractions(
+    path: str | Path = DEFAULT_INPUT,
+) -> dict[str, Any]:
+    """导入全国景区，并在事务提交后清空景点缓存。"""
+    sources, parse_report = load_nationwide_sources(path)
+
+    with session_scope() as session:
+        sync_report = sync_nationwide_attractions(session, sources)
+
+    deleted_cache_entries = attraction_cache.clear_all()
+
+    return {
+        **parse_report,
+        **sync_report,
+        "deleted_cache_entries": deleted_cache_entries,
+    }
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="转换百度景点坐标并批量补全海拔",
-    )
+    parser = argparse.ArgumentParser(description="导入全国景区 Excel")
     parser.add_argument("--input", default=str(DEFAULT_INPUT))
-    parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument(
-        "--skip-elevation",
+        "--dry-run",
         action="store_true",
-        help="不调用 Open-Meteo，只生成缺少海拔的候选数据",
+        help="只解析和检查数据，不写入数据库",
     )
     args = parser.parse_args()
-
-    payload = import_attractions(
-        input_path=args.input,
-        output_path=args.output,
-        query_elevation=not args.skip_elevation,
-    )
-    print(json.dumps(payload["summary"], ensure_ascii=False))
+    if args.dry_run:
+        sources, report = load_nationwide_sources(args.input)
+        result = {**report, "ready_to_import": len(sources)}
+    else:
+        result = import_nationwide_attractions(args.input)
+    print(json.dumps(result, ensure_ascii=False, default=str))
 
 
 if __name__ == "__main__":
