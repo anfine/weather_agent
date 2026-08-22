@@ -109,18 +109,29 @@ jobs:
             mysql redis
 
           "${compose[@]}" stop app
-          "${compose[@]}" run --rm --no-deps app alembic upgrade head
           "${compose[@]}" run \
             --rm \
             --no-deps \
+            --interactive=false \
+            -T \
+            app alembic upgrade head
+          "${compose[@]}" run \
+            --rm \
+            --no-deps \
+            --interactive=false \
+            -T \
             app python scripts/seed_attractions.py
           "${compose[@]}" run \
             --rm \
             --no-deps \
+            --interactive=false \
+            -T \
             app python scripts/import_attractions.py
           "${compose[@]}" run \
             --rm \
             --no-deps \
+            --interactive=false \
+            -T \
             app python scripts/check_attractions.py
 
           "${compose[@]}" up \
@@ -131,4 +142,6 @@ jobs:
             app
           curl --fail --silent --show-error \
             http://127.0.0.1:8000/api/ready
+          echo
+          echo "Deployment completed: $DEPLOY_SHA"
           REMOTE
