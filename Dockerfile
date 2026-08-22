@@ -16,7 +16,9 @@ RUN groupadd --system app \
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN pip install \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -r requirements.txt
 
 COPY --chown=app:app . .
 
